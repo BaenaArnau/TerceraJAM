@@ -56,7 +56,7 @@ namespace SpellsAndRooms.scripts.map
             // 5. Calcular pesos y asignar tipos (Monster, Shop, Campfire...)
             SetupRoomWeights();
             SetupRoomTypes();
-
+            
             return _mapData;
         }
 

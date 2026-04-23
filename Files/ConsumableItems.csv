@@ -1,3 +1,3 @@
 name,type,subtype,num,description,value
-Health Potion,Potion,Healing,5,"A potion that restores a small amount of health when consumed.",15
-Mana Potion,Potion,Mana,5,"A potion that restores a small amount of mana when consumed.",25
+Health Potion,Potion,Healing,5,"Una poción que restaura una pequeña cantidad de salud al ser consumida.",15
+Mana Potion,Potion,Mana,5,"Una poción que restaura una pequeña cantidad de maná al ser consumida.",25

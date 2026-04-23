@@ -1,3 +1,3 @@
 name,type,num,description,value
-Armor, armor, 10, "Provides protection against physical attacks, reducing damage taken by 10%.",50
-Sword, weapon, 15, "A sharp blade that increases attack power by 15%.",50
+Armor, armor, 10, "Proporciona protección contra ataques físicos, reduciendo los daños sufridos en un 10%.",50
+Sword, weapon, 15, "Una hoja afilada que aumenta el poder de ataque en un 15%.",50

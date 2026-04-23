@@ -323,13 +323,29 @@ namespace SpellsAndRooms.scripts.map
             _selectedRoom = selectedRoom;
             GD.Print($"Habitación seleccionada: {selectedRoom}");
 
-            if (selectedRoom.Type == Room.RoomType.Monster || selectedRoom.Type == Room.RoomType.Boss)
+            switch (selectedRoom.Type)
             {
-                StartCombat(selectedRoom);
-                return;
-            }
+                case Room.RoomType.Monster:
+                case Room.RoomType.Boss:
+                    StartCombat(selectedRoom);
+                    return;
 
-            AdvanceMapRoute(selectedRoom);
+                case Room.RoomType.Shop:
+                    StartShop(selectedRoom);
+                    return;
+
+                case Room.RoomType.Campfire:
+                    StartCampfire(selectedRoom);
+                    return;
+
+                case Room.RoomType.Treasure:
+                    StartTreasure(selectedRoom);
+                    return;
+
+                default:
+                    AdvanceMapRoute(selectedRoom);
+                    return;
+            }
         }
 
         private void StartCombat(Room selectedRoom)
@@ -400,6 +416,102 @@ namespace SpellsAndRooms.scripts.map
                 AdvanceMapRoute(_pendingCombatRoom);
 
             _pendingCombatRoom = null;
+        }
+
+        private void StartShop(Room selectedRoom)
+        {
+            if (_player == null)
+            {
+                GD.PrintErr("El jugador no existe para iniciar la tienda.");
+                return;
+            }
+
+            var shopScene = new ShopScene();
+            
+            // Ocultar el mapa mientras está en la tienda
+            if (_visualsContainer != null)
+            {
+                _visualsContainer.Visible = false;
+            }
+
+            AddChild(shopScene);
+            shopScene.StartShop(_player);
+            shopScene.ShopClosed += () => OnShopClosed(selectedRoom);
+        }
+
+        private void OnShopClosed(Room selectedRoom)
+        {
+            // Mostrar el mapa nuevamente después de la tienda
+            if (_visualsContainer != null)
+            {
+                _visualsContainer.Visible = true;
+            }
+
+            AdvanceMapRoute(selectedRoom);
+        }
+
+        private void StartCampfire(Room selectedRoom)
+        {
+            if (_player == null)
+            {
+                GD.PrintErr("El jugador no existe para iniciar la fogata.");
+                return;
+            }
+
+            GD.Print("[Map] Iniciando escena de fogata...");
+            
+            // Ocultar el mapa mientras está en la fogata
+            if (_visualsContainer != null)
+            {
+                _visualsContainer.Visible = false;
+            }
+
+            // Aquí se instanciaría la escena de fogata
+            // Por ahora, solo avanzamos la ruta
+            CallDeferred(nameof(OnCampfireClosed), selectedRoom);
+        }
+
+        private void OnCampfireClosed(Room selectedRoom)
+        {
+            // Mostrar el mapa nuevamente después de la fogata
+            if (_visualsContainer != null)
+            {
+                _visualsContainer.Visible = true;
+            }
+
+            AdvanceMapRoute(selectedRoom);
+        }
+
+        private void StartTreasure(Room selectedRoom)
+        {
+            if (_player == null)
+            {
+                GD.PrintErr("El jugador no existe para abrir el tesoro.");
+                return;
+            }
+
+            GD.Print("[Map] Abriendo tesoro...");
+            
+            // Ocultar el mapa mientras está en el tesoro
+            if (_visualsContainer != null)
+            {
+                _visualsContainer.Visible = false;
+            }
+
+            // Aquí se instanciaría la escena de tesoro
+            // Por ahora, solo avanzamos la ruta
+            CallDeferred(nameof(OnTreasureClosed), selectedRoom);
+        }
+
+        private void OnTreasureClosed(Room selectedRoom)
+        {
+            // Mostrar el mapa nuevamente después del tesoro
+            if (_visualsContainer != null)
+            {
+                _visualsContainer.Visible = true;
+            }
+
+            AdvanceMapRoute(selectedRoom);
         }
 
         private void AdvanceMapRoute(Room selectedRoom)

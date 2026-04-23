@@ -1,6 +1,6 @@
 name,type,damage,manacost,multihit,description,value
-Destroyer,Physical,100,20,false,"A powerful strike that can destroy enemies.",30
-Pyro,Fire,80,15,false,"A fiery attack that burns enemies over time.",30
-Aqua,Water,70,10,false,"A water-based attack that can douse flames and slow enemies.",30
-Earthquake,Earth,90,25,true,"An area-of-effect attack that damages all enemies in the vicinity.",30
-Cure,Healing,30,30,false,"A healing spell that restores health to the caster or an ally.",30
+Destroyer,Physical,20,20,false,"Un ataque poderoso capaz de destruir a los enemigos.",30
+Pyro,Fire,10,15,false,"Un ataque ígneo que quema a los enemigos con el tiempo.",30
+Aqua,Water,7,10,false,"Un ataque a base de agua que puede apagar las llamas y ralentizar a los enemigos.",30
+Earthquake,Earth,10,25,true,"Un ataque de área que daña a todos los enemigos en las proximidades.",30
+Cure,Healing,30,30,false,"Un hechizo curativo que restaura la salud del lanzador o de un aliado.",30

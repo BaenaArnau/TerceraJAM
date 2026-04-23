@@ -1,14 +1,23 @@
 [gd_scene format=3 uid="uid://dxyhjjv3qn8yb"]
 
-[ext_resource type="Texture2D" uid="uid://78be5hemrx5" path="res://assets/Turns/Shop.png" id="1_f0pna"]
+[ext_resource type="Script" uid="uid://dofua8tp3uc86" path="res://scripts/Turns/ShopScene.cs" id="1_shop"]
+[ext_resource type="Texture2D" uid="uid://78be5hemrx5" path="res://assets/Turns/Shop.png" id="2_f0pna"]
 
 [node name="Shop" type="Node" unique_id=244572407]
+script = ExtResource("1_shop")
 
-[node name="TextureRect" type="TextureRect" parent="." unique_id=519705307]
+[node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=519705307]
+layer = -1
+
+[node name="TextureRect" type="TextureRect" parent="BackgroundLayer" unique_id=989634679]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("1_f0pna")
+texture = ExtResource("2_f0pna")
 expand_mode = 2
+mouse_filter = 1
+
+[node name="UiLayer" type="CanvasLayer" parent="." unique_id=269365550]
+layer = 1

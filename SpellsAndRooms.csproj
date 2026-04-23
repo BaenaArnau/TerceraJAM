@@ -8,13 +8,9 @@
     <Folder Include="scripts\Items\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="BATTLE_SYSTEM.md" />
-    <Content Include="BATTLE_VISUAL_SUMMARY.md" />
-    <Content Include="CHANGELOG_BATTLE_SYSTEM.md" />
     <Content Include="Files\ConsumableItems.csv" />
     <Content Include="Files\Enemy.csv" />
     <Content Include="Files\PassiveItem.csv" />
     <Content Include="Files\Skill.csv" />
-    <Content Include="GUIA_SPRITES_ENEMIGOS.md" />
   </ItemGroup>
 </Project>

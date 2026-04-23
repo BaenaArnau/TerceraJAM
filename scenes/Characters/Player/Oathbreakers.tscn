@@ -81,5 +81,6 @@ script = ExtResource("2_j6agc")
 CharacterName = "Oathbreakers"
 BaseHealth = 80
 BaseMana = 30
-Damage = 10
+Damage = 15
 DamageResistance = 3
+DamageWeakness = 4
