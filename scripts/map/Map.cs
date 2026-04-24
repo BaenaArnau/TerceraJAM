@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using System;
 using System.Collections.Generic;
 using SpellsAndRooms.scripts.Characters;
 using SpellsAndRooms.scripts.Turns;
@@ -12,6 +13,8 @@ namespace SpellsAndRooms.scripts.map
         [Export] public PackedScene MapLineScene;
         [Export] public PackedScene BattleScenePacked;
         [Export] public PackedScene ShopScenePacked;
+        [Export] public PackedScene CampfireScenePacked;
+        [Export] public PackedScene TreasureScenePacked;
         [Export(PropertyHint.Range, "1.0,3.0,0.05")] public float MapZoom = 1.7f;
         [Export] public float ScrollStep = 80.0f;
         [Export] public float ScrollSmoothness = 10.0f;
@@ -39,8 +42,17 @@ namespace SpellsAndRooms.scripts.map
         private const string BattleScenePath = "res://scenes/Turns/Battel.tscn";
         private const string LegacyBattleScenePath = "res://scripts/Turns/Battel.tscn";
         private const string ShopScenePath = "res://scenes/Turns/Shop.tscn";
+        private const string CampfireScenePath = "res://scenes/Turns/Campfire.tscn";
+        private const string TreasureScenePath = "res://scenes/Turns/Tresure.tscn";
+        private const string PlayerLoadoutCsvPath = "res://Files/Plyaer.csv";
         private bool _isInShop;
+        private bool _isInCampfire;
+        private bool _isInTreasure;
         private Room _pendingShopRoom;
+        private Room _pendingCampfireRoom;
+        private Room _pendingTreasureRoom;
+        private CanvasLayer _goldHudLayer;
+        private Label _goldHudLabel;
 
         public override void _Ready()
         {
@@ -73,10 +85,26 @@ namespace SpellsAndRooms.scripts.map
                     GD.PrintErr($"No se pudo cargar la escena de tienda en '{ShopScenePath}'.");
             }
 
+            if (CampfireScenePacked == null)
+            {
+                CampfireScenePacked = ResourceLoader.Load<PackedScene>(CampfireScenePath);
+                if (CampfireScenePacked == null)
+                    GD.PrintErr($"No se pudo cargar la escena de fogata en '{CampfireScenePath}'.");
+            }
+
+            if (TreasureScenePacked == null)
+            {
+                TreasureScenePacked = ResourceLoader.Load<PackedScene>(TreasureScenePath);
+                if (TreasureScenePacked == null)
+                    GD.PrintErr($"No se pudo cargar la escena de cofre en '{TreasureScenePath}'.");
+            }
+
             if (_visualsContainer != null)
                 _visualsContainer.Scale = Vector2.One * MapZoom;
 
             SetupCombatSystems();
+            BuildGoldHud();
+            UpdateGoldHud();
 
             GenerateAndDisplayMap();
         }
@@ -109,7 +137,10 @@ namespace SpellsAndRooms.scripts.map
             _player.Health = _player.BaseHealth;
             _player.Mana = _player.BaseMana;
 
-            string[] startingSkills = { "Pyro", "Aqua", "Earthquake", "Cure" };
+            List<string> startingSkills = ResolveStartingSkillsFromCsv();
+            if (startingSkills.Count == 0)
+                startingSkills.AddRange(new[] { "Pyro", "Aqua", "Earthquake", "Cure" });
+
             foreach (string skillName in startingSkills)
             {
                 if (_skillDatabase.TryGetSkill(skillName, out Skill skill))
@@ -117,6 +148,137 @@ namespace SpellsAndRooms.scripts.map
                     _player.AddSkill(skill);
                 }
             }
+
+            UpdateGoldHud();
+        }
+
+        private List<string> ResolveStartingSkillsFromCsv()
+        {
+            var skills = new List<string>();
+            if (!FileAccess.FileExists(PlayerLoadoutCsvPath))
+                return skills;
+
+            using FileAccess file = FileAccess.Open(PlayerLoadoutCsvPath, FileAccess.ModeFlags.Read);
+            if (file == null)
+                return skills;
+
+            string preferredName = (_player?.Name.ToString() ?? string.Empty).Trim();
+            string preferredCharacter = (_player?.CharacterName ?? string.Empty).Trim();
+            List<string> fallbackRow = null;
+            bool isHeader = true;
+
+            while (!file.EofReached())
+            {
+                string line = file.GetLine().Trim();
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                if (isHeader)
+                {
+                    isHeader = false;
+                    continue;
+                }
+
+                List<string> cols = CsvUtils.SplitLine(line);
+                if (cols.Count < 2)
+                    continue;
+
+                string rowName = cols[0].Trim();
+                List<string> rowSkills = ParseSkillsFromColumns(cols);
+                if (rowSkills.Count == 0)
+                    continue;
+
+                fallbackRow ??= rowSkills;
+                if (rowName.Equals(preferredName, StringComparison.OrdinalIgnoreCase) ||
+                    rowName.Equals(preferredCharacter, StringComparison.OrdinalIgnoreCase))
+                {
+                    return rowSkills;
+                }
+            }
+
+            return fallbackRow ?? skills;
+        }
+
+        private static List<string> ParseSkillsFromColumns(List<string> cols)
+        {
+            var result = new List<string>();
+            for (int i = 1; i < cols.Count; i++)
+            {
+                string value = (cols[i] ?? string.Empty).Trim();
+                if (string.IsNullOrWhiteSpace(value) || value.Equals("null", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                result.Add(value);
+            }
+
+            return result;
+        }
+
+        private void BuildGoldHud()
+        {
+            if (_goldHudLayer != null)
+                return;
+
+            _goldHudLayer = new CanvasLayer { Name = "GoldHudLayer", Layer = 5 };
+            AddChild(_goldHudLayer);
+
+            var panel = new PanelContainer
+            {
+                Name = "GoldPanel",
+                AnchorLeft = 0.02f,
+                AnchorTop = 0.02f,
+                AnchorRight = 0.16f,
+                AnchorBottom = 0.075f,
+                CustomMinimumSize = new Vector2(140, 30),
+                MouseFilter = Control.MouseFilterEnum.Ignore
+            };
+
+            var style = new StyleBoxFlat
+            {
+                BgColor = new Color(0.08f, 0.08f, 0.10f, 0.88f),
+                BorderColor = new Color(0.80f, 0.68f, 0.36f),
+                BorderWidthLeft = 2,
+                BorderWidthTop = 2,
+                BorderWidthRight = 2,
+                BorderWidthBottom = 2,
+                CornerRadiusTopLeft = 8,
+                CornerRadiusTopRight = 8,
+                CornerRadiusBottomLeft = 8,
+                CornerRadiusBottomRight = 8,
+                ContentMarginLeft = 8,
+                ContentMarginTop = 4,
+                ContentMarginRight = 8,
+                ContentMarginBottom = 4
+            };
+            panel.AddThemeStyleboxOverride("panel", style);
+            _goldHudLayer.AddChild(panel);
+
+            _goldHudLabel = new Label
+            {
+                Name = "GoldLabel",
+                Text = "Oro: 0",
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                MouseFilter = Control.MouseFilterEnum.Ignore
+            };
+            _goldHudLabel.AddThemeFontSizeOverride("font_size", 14);
+            panel.AddChild(_goldHudLabel);
+        }
+
+        private void UpdateGoldHud()
+        {
+            if (_goldHudLabel == null || _player == null)
+                return;
+
+            _goldHudLabel.Text = $"Oro: {_player.Gold}";
+        }
+
+        private void SetMapVisible(bool visible)
+        {
+            if (_visualsContainer != null)
+                _visualsContainer.Visible = visible;
+
+            if (_goldHudLayer != null)
+                _goldHudLayer.Visible = visible;
         }
 
         private void GenerateAndDisplayMap()
@@ -328,7 +490,7 @@ namespace SpellsAndRooms.scripts.map
 
         private void OnRoomSelected(Room selectedRoom)
         {
-            if (_isInBattle || _isInShop)
+            if (_isInBattle || _isInShop || _isInCampfire || _isInTreasure)
                 return;
 
             _selectedRoom = selectedRoom;
@@ -346,6 +508,18 @@ namespace SpellsAndRooms.scripts.map
                 return;
             }
 
+            if (selectedRoom.Type == Room.RoomType.Campfire)
+            {
+                StartCampfire(selectedRoom);
+                return;
+            }
+
+            if (selectedRoom.Type == Room.RoomType.Treasure)
+            {
+                StartTreasure(selectedRoom);
+                return;
+            }
+
             AdvanceMapRoute(selectedRoom);
         }
 
@@ -354,12 +528,14 @@ namespace SpellsAndRooms.scripts.map
             if (_player == null)
             {
                 GD.PrintErr("No hay jugador para abrir la tienda.");
+                AdvanceMapRoute(selectedRoom);
                 return;
             }
 
             if (ShopScenePacked == null)
             {
                 GD.PrintErr("No hay escena de tienda asignada.");
+                AdvanceMapRoute(selectedRoom);
                 return;
             }
 
@@ -368,14 +544,14 @@ namespace SpellsAndRooms.scripts.map
             {
                 GD.PrintErr("La escena de tienda no usa ShopScene.cs.");
                 shopInstance.QueueFree();
+                AdvanceMapRoute(selectedRoom);
                 return;
             }
 
             _isInShop = true;
             _pendingShopRoom = selectedRoom;
 
-            if (_visualsContainer != null)
-                _visualsContainer.Visible = false;
+            SetMapVisible(false);
 
             AddChild(shopScene);
             shopScene.ShopClosed += OnShopClosed;
@@ -386,13 +562,109 @@ namespace SpellsAndRooms.scripts.map
         {
             _isInShop = false;
 
-            if (_visualsContainer != null)
-                _visualsContainer.Visible = true;
+            SetMapVisible(true);
+            UpdateGoldHud();
 
             if (_pendingShopRoom != null)
                 AdvanceMapRoute(_pendingShopRoom);
 
             _pendingShopRoom = null;
+        }
+
+        private void StartCampfire(Room selectedRoom)
+        {
+            if (_player == null)
+            {
+                GD.PrintErr("No hay jugador para abrir la fogata.");
+                AdvanceMapRoute(selectedRoom);
+                return;
+            }
+
+            if (CampfireScenePacked == null)
+            {
+                GD.PrintErr("No hay escena de fogata asignada.");
+                AdvanceMapRoute(selectedRoom);
+                return;
+            }
+
+            Node campfireInstance = CampfireScenePacked.Instantiate();
+            if (campfireInstance is not CampfireScene campfireScene)
+            {
+                GD.PrintErr("La escena de fogata no usa CampfireScene.cs.");
+                campfireInstance.QueueFree();
+                AdvanceMapRoute(selectedRoom);
+                return;
+            }
+
+            _isInCampfire = true;
+            _pendingCampfireRoom = selectedRoom;
+
+            SetMapVisible(false);
+
+            AddChild(campfireScene);
+            campfireScene.CampfireClosed += OnCampfireClosed;
+            campfireScene.StartCampfire(_player);
+        }
+
+        private void OnCampfireClosed()
+        {
+            _isInCampfire = false;
+
+            SetMapVisible(true);
+            UpdateGoldHud();
+
+            if (_pendingCampfireRoom != null)
+                AdvanceMapRoute(_pendingCampfireRoom);
+
+            _pendingCampfireRoom = null;
+        }
+
+        private void StartTreasure(Room selectedRoom)
+        {
+            if (_player == null)
+            {
+                GD.PrintErr("No hay jugador para abrir el cofre.");
+                AdvanceMapRoute(selectedRoom);
+                return;
+            }
+
+            if (TreasureScenePacked == null)
+            {
+                GD.PrintErr("No hay escena de cofre asignada.");
+                AdvanceMapRoute(selectedRoom);
+                return;
+            }
+
+            Node treasureInstance = TreasureScenePacked.Instantiate();
+            if (treasureInstance is not TreasureScene treasureScene)
+            {
+                GD.PrintErr("La escena de cofre no usa TreasureScene.cs.");
+                treasureInstance.QueueFree();
+                AdvanceMapRoute(selectedRoom);
+                return;
+            }
+
+            _isInTreasure = true;
+            _pendingTreasureRoom = selectedRoom;
+
+            SetMapVisible(false);
+
+            AddChild(treasureScene);
+            treasureScene.TreasureClosed += OnTreasureClosed;
+            treasureScene.StartTreasure(_player);
+        }
+
+        private void OnTreasureClosed()
+        {
+            _isInTreasure = false;
+
+            SetMapVisible(true);
+            UpdateGoldHud();
+
+            if (_pendingTreasureRoom != null)
+                AdvanceMapRoute(_pendingTreasureRoom);
+
+            _pendingTreasureRoom = null;
         }
 
         private void StartCombat(Room selectedRoom)
@@ -428,11 +700,8 @@ namespace SpellsAndRooms.scripts.map
             _isInBattle = true;
             _pendingCombatRoom = selectedRoom;
             
-            // Ocultar el mapa mientras está en batalla
-            if (_visualsContainer != null)
-            {
-                _visualsContainer.Visible = false;
-            }
+            // Ocultar mapa y HUD mientras está en batalla.
+            SetMapVisible(false);
             
             AddChild(battleScene);
             battleScene.BattleFinished += OnBattleFinished;
@@ -446,11 +715,9 @@ namespace SpellsAndRooms.scripts.map
                 ? $"Combate ganado. Oro: {earnedGold}."
                 : "Combate perdido.");
 
-            // Mostrar el mapa nuevamente después de la batalla
-            if (_visualsContainer != null)
-            {
-                _visualsContainer.Visible = true;
-            }
+            // Mostrar el mapa nuevamente después de la batalla.
+            SetMapVisible(true);
+            UpdateGoldHud();
 
             if (!playerWon)
             {

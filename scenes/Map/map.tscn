@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://18m40cw1xsic" path="res://scenes/Map/map_line.tscn" id="3_15h2t"]
 [ext_resource type="PackedScene" uid="uid://cp53kqrvqjjns" path="res://scenes/Turns/Campfire.tscn" id="4_4n8f8"]
 [ext_resource type="PackedScene" uid="uid://6ho3n8ykn1r" path="res://scenes/Turns/Tresure.tscn" id="5_i2v3j"]
+[ext_resource type="PackedScene" uid="uid://dxyhjjv3qn8yb" path="res://scenes/Turns/Shop.tscn" id="6_shop"]
 
 [sub_resource type="Gradient" id="Gradient_exngo"]
 colors = PackedColorArray(0.21568628, 0.21568628, 0.21568628, 1, 0.4, 0.21960784, 0.20392157, 1)
@@ -20,6 +21,7 @@ MapRoomScene = ExtResource("2_exngo")
 MapLineScene = ExtResource("3_15h2t")
 CampfireScenePacked = ExtResource("4_4n8f8")
 TreasureScenePacked = ExtResource("5_i2v3j")
+ShopScenePacked = ExtResource("6_shop")
 MapZoom = 3.0
 
 [node name="Visuals" type="Node2D" parent="." unique_id=809049232]

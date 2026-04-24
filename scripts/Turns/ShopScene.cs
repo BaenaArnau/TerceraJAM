@@ -6,11 +6,19 @@ using SpellsAndRooms.scripts.Characters;
 
 namespace SpellsAndRooms.scripts.Turns
 {
+    /// <summary>
+    /// Representa la escena de la tienda que aparece entre encuentros, donde el jugador puede comprar consumibles, pasivos o habilidades usando el oro acumulado.
+    /// </summary>
     public partial class ShopScene : Node
     {
-        [Signal]
-        public delegate void ShopClosedEventHandler();
+        /// <summary>
+        /// Señal emitida cuando el jugador cierra la tienda, para que el EncounterDirector pueda continuar con el flujo del juego.
+        /// </summary>
+        [Signal] public delegate void ShopClosedEventHandler();
 
+        /// <summary>
+        /// Enum para diferenciar los tipos de ofertas que pueden aparecer en la tienda, lo que facilita su manejo y aplicación al jugador.
+        /// </summary>
         private enum OfferType
         {
             Consumable,
@@ -18,6 +26,9 @@ namespace SpellsAndRooms.scripts.Turns
             Skill
         }
 
+        /// <summary>
+        /// Clase interna que representa una oferta individual en la tienda, con toda la información necesaria para mostrarla al jugador y aplicarla si se compra.
+        /// </summary>
         private sealed class ShopOffer
         {
             public OfferType Type { get; init; }
@@ -57,7 +68,13 @@ namespace SpellsAndRooms.scripts.Turns
         private int _pendingSkillOfferIndex = -1;
         private Skill _pendingSkillToLearn;
         private readonly List<ShopOffer> _activeOffers = new List<ShopOffer>();
-
+        
+        /// <summary>
+        /// Inicializa la tienda con el jugador que la visita, generando las ofertas disponibles y preparando la interfaz. Este método debe ser llamado por el EncounterDirector antes de mostrar la tienda, para asegurarse de que se muestre con la información correcta del jugador y las ofertas adecuadas a su progreso.
+        /// </summary>
+        /// <param name="player">
+        /// El jugador que está visitando la tienda. Se utiliza para generar ofertas relevantes a su estado actual (como habilidades que no tiene) y para aplicar las compras que realice. Es importante que este objeto esté completamente inicializado y refleje el estado actual del jugador antes de llamar a este método.
+        /// </param>
         public void StartShop(Player player)
         {
             _player = player;
@@ -72,7 +89,10 @@ namespace SpellsAndRooms.scripts.Turns
                 RefreshUi(resetStatus: true);
             }
         }
-
+        
+        /// <summary>
+        /// Método de Godot que se llama cuando la escena entra en el árbol. Se encarga de construir la interfaz de usuario si aún no se ha hecho, generar las ofertas si el jugador ya está asignado pero no hay ofertas (caso raro) y refrescar la interfaz para mostrar la información actualizada del jugador y las ofertas disponibles. Este método garantiza que la tienda esté lista para ser interactuada tan pronto como se muestre, siempre y cuando el jugador haya sido asignado previamente a través de StartShop.
+        /// </summary>
         public override void _Ready()
         {
             BuildUi();
@@ -82,7 +102,10 @@ namespace SpellsAndRooms.scripts.Turns
             if (_player != null)
                 RefreshUi(resetStatus: true);
         }
-
+        
+        /// <summary>
+        /// Construye la interfaz de usuario de la tienda, creando los nodos necesarios para mostrar el fondo, las ofertas, el oro del jugador y los mensajes de estado. Este método se asegura de que la estructura de la interfaz esté correctamente organizada en capas para permitir una fácil gestión de los elementos visuales y de interacción. Se llama automáticamente en _Ready, pero también se puede llamar manualmente si es necesario reconstruir la interfaz por alguna razón (aunque en este diseño no se espera que eso sea común).
+        /// </summary>
         private void BuildUi()
         {
             if (_uiBuilt)
@@ -230,7 +253,13 @@ namespace SpellsAndRooms.scripts.Turns
             _replacementCancelButton.Pressed += CancelSkillReplacement;
             replacementLayout.AddChild(_replacementCancelButton);
         }
-
+        
+        /// <summary>
+        /// Refresca la interfaz de usuario para mostrar la información actualizada del jugador (como el oro disponible) y las ofertas en la tienda. Si se indica resetStatus, también restablece el mensaje de estado al texto predeterminado. Este método se llama después de cualquier acción que pueda cambiar el estado del jugador o las ofertas (como comprar una carta) para asegurarse de que la interfaz refleje correctamente la situación actual. También se llama en _Ready para mostrar la información inicial cuando se abre la tienda.
+        /// </summary>
+        /// <param name="resetStatus">
+        /// Indica si el mensaje de estado debe restablecerse al texto predeterminado. Esto es útil para limpiar mensajes temporales después de que el jugador interactúa con las ofertas, asegurando que la interfaz no quede con mensajes obsoletos o confusos después de una acción. En general, se recomienda pasar true después de acciones del jugador y false solo cuando se actualiza la interfaz por razones internas sin necesidad de cambiar el mensaje de estado.
+        /// </param>
         private void RefreshUi(bool resetStatus = false)
         {
             if (_player == null || _itemDatabase == null)
@@ -249,7 +278,19 @@ namespace SpellsAndRooms.scripts.Turns
                 _cardsContainer.AddChild(CreateOfferCard(offer, i));
             }
         }
-
+        
+        /// <summary>
+        /// Crea un Control que representa visualmente una oferta en la tienda, mostrando su imagen, título, subtítulo, descripción y precio. Este Control también maneja la interacción del mouse para mostrar el mensaje de estado al pasar el cursor sobre la carta y para permitir la compra al hacer clic en el botón correspondiente. La apariencia de la carta se personaliza con estilos para que sea atractiva y coherente con el diseño general de la tienda. Este método se llama desde RefreshUi para generar las cartas de las ofertas activas cada vez que se actualiza la interfaz.
+        /// </summary>
+        /// <param name="offer">
+        /// La oferta que se va a representar en la carta. Se espera que este objeto contenga toda la información necesaria para mostrar la oferta correctamente (como el título, descripción, imagen y precio) y para manejar su compra (como el tipo de oferta y si ya fue comprada). Es importante que este objeto esté completamente inicializado antes de llamar a este método, ya que se asume que sus propiedades son válidas y se utilizan directamente para configurar la apariencia y funcionalidad de la carta.
+        /// </param>
+        /// <param name="index">
+        /// El índice de la oferta dentro de la lista de ofertas activas. Este valor se utiliza para identificar la oferta cuando el jugador interactúa con su carta (por ejemplo, al hacer clic en el botón de compra) y para pasar esta información a los métodos que manejan la compra o la selección de reemplazo. Es importante que este índice corresponda correctamente a la posición de la oferta en la lista de ofertas activas para evitar errores al aplicar las compras o al mostrar información adicional.
+        /// </param>
+        /// <returns>
+        /// Un Control que representa visualmente la oferta en la tienda, con toda la información y funcionalidad necesaria para que el jugador pueda interactuar con ella. Este Control se agrega a la interfaz de usuario en RefreshUi para mostrar las ofertas disponibles al jugador. La carta incluye la imagen (si está disponible), el título, subtítulo, descripción truncada y un botón para comprar, todo estilizado de manera coherente con el diseño de la tienda. Además, maneja eventos de mouse para mostrar información adicional en el mensaje de estado cuando el jugador pasa el cursor sobre la carta.
+        /// </returns>
         private Control CreateOfferCard(ShopOffer offer, int index)
         {
             var panel = new PanelContainer
@@ -338,6 +379,15 @@ namespace SpellsAndRooms.scripts.Turns
             return panel;
         }
 
+        /// <summary>
+        /// Trunca la descripción de una oferta para que no ocupe demasiado espacio en la carta, limitándola a un número razonable de caracteres y agregando puntos suspensivos si es necesario. Esto ayuda a mantener la interfaz limpia y legible, evitando que descripciones largas desborden el diseño de la carta o hagan que sea difícil para el jugador entender rápidamente de qué se trata la oferta. Se recomienda que las descripciones originales sean lo más claras y concisas posible para minimizar la necesidad de truncamiento, pero este método proporciona una capa adicional de protección para casos donde las descripciones puedan ser excesivamente largas.
+        /// </summary>
+        /// <param name="text">
+        /// La descripción original de la oferta que se va a mostrar en la carta. Se espera que esta descripción pueda ser de cualquier longitud, y este método se encargará de truncarla si excede el límite establecido (en este caso, 90 caracteres). Es importante que esta descripción sea informativa y clara, ya que el jugador dependerá de ella para entender qué beneficios o características ofrece la carta, pero también es crucial que no sea tan larga como para afectar negativamente la presentación visual de la tienda.
+        /// </param>
+        /// <returns>
+        /// Una versión truncada de la descripción original, limitada a un máximo de 90 caracteres. Si la descripción original es más corta o igual a este límite, se devuelve sin cambios (aunque se le aplicará un trim para eliminar espacios innecesarios). Si la descripción excede el límite, se corta en el carácter 87 y se agregan puntos suspensivos al final para indicar que hay más texto que no se muestra. Este formato ayuda a mantener la interfaz de la tienda ordenada y fácil de leer, permitiendo al jugador obtener una idea rápida de lo que ofrece la carta sin sentirse abrumado por una descripción demasiado larga.
+        /// </returns>
         private static string TruncateDescription(string text)
         {
             string safe = (text ?? string.Empty).Trim();
@@ -346,7 +396,13 @@ namespace SpellsAndRooms.scripts.Turns
 
             return safe.Substring(0, 87) + "...";
         }
-
+        
+        /// <summary>
+        /// Crea un StyleBoxFlat personalizado para las cartas de la tienda, definiendo su apariencia con colores de fondo, bordes, esquinas redondeadas y márgenes de contenido. Este estilo se aplica a cada carta para darle una apariencia distintiva y coherente con el diseño general de la tienda, ayudando a que las ofertas se destaquen visualmente y sean atractivas para el jugador. Se recomienda ajustar los colores y tamaños según el estilo artístico del juego para lograr la mejor integración visual posible.
+        /// </summary>
+        /// <returns>
+        /// Un StyleBoxFlat configurado con los parámetros deseados para las cartas de la tienda, incluyendo un color de fondo oscuro con algo de transparencia, bordes dorados para resaltar las cartas, esquinas redondeadas para un aspecto más amigable y márgenes internos para asegurar que el contenido de la carta no quede pegado a los bordes. Este estilo se utiliza en el método CreateOfferCard para aplicar la apariencia a cada carta generada en la interfaz de la tienda. Ajustar este estilo puede ayudar a mejorar la estética general de la tienda y hacer que las ofertas sean más atractivas visualmente para el jugador.
+        /// </returns>
         private static StyleBoxFlat CreateCardStyle()
         {
             var style = new StyleBoxFlat
@@ -369,7 +425,13 @@ namespace SpellsAndRooms.scripts.Turns
 
             return style;
         }
-
+        
+        /// <summary>
+        /// Crea un StyleBoxFlat personalizado para el marco de la imagen en las cartas de la tienda, definiendo su apariencia con un color de fondo más oscuro y transparente, bordes grises para contrastar con la imagen, esquinas redondeadas para mantener la coherencia visual con el estilo de las cartas y márgenes internos para asegurar que la imagen no quede pegada a los bordes del marco. Este estilo se aplica al contenedor que rodea la imagen en cada carta, ayudando a que las imágenes se destaquen visualmente y mantengan una presentación ordenada dentro de la carta. Ajustar este estilo puede mejorar la integración visual de las imágenes en las cartas y hacer que se vean más atractivas para el jugador.
+        /// </summary>
+        /// <returns>
+        /// Un StyleBoxFlat configurado con los parámetros deseados para el marco de la imagen en las cartas de la tienda, incluyendo un color de fondo oscuro y transparente para que la imagen resalte, bordes grises para crear un contraste visual, esquinas redondeadas para mantener la coherencia con el estilo general de las cartas y márgenes internos para asegurar que la imagen tenga espacio suficiente dentro del marco. Este estilo se utiliza en el método CreateOfferCard para aplicar la apariencia al contenedor de la imagen en cada carta generada en la interfaz de la tienda. Ajustar este estilo puede ayudar a mejorar la presentación visual de las imágenes en las cartas y hacer que se vean más integradas y atractivas para el jugador.
+        /// </returns>
         private static StyleBoxFlat CreateImageFrameStyle()
         {
             var style = new StyleBoxFlat
@@ -392,7 +454,13 @@ namespace SpellsAndRooms.scripts.Turns
 
             return style;
         }
-
+        
+        /// <summary>
+        /// Maneja el evento de compra de una oferta, verificando si el jugador puede permitirse la compra, aplicando los efectos correspondientes según el tipo de oferta (consumible, pasivo o habilidad) y actualizando la interfaz para reflejar los cambios. Este método se llama cuando el jugador hace clic en el botón de compra de una carta, y se encarga de validar la compra, aplicar sus efectos al jugador (como agregar un consumible al inventario, otorgar un pasivo o aprender una nueva habilidad) y marcar la oferta como comprada para evitar compras repetidas. Además, si la oferta es una habilidad que requiere reemplazo, inicia el proceso para que el jugador elija qué habilidad desea reemplazar.
+        /// </summary>
+        /// <param name="offer">
+        /// La oferta que el jugador ha decidido comprar. Se espera que esta oferta esté completamente inicializada y que su propiedad Purchased sea false, ya que este método se encarga de validar la compra y marcarla como comprada si es exitosa. Es importante que esta oferta contenga toda la información necesaria para aplicar sus efectos correctamente al jugador, como el tipo de oferta, el precio, la descripción y cualquier dato adicional relevante para su aplicación (por ejemplo, qué consumible agregar o qué habilidad aprender). Este método también maneja casos especiales, como habilidades que requieren reemplazo, para asegurar una experiencia de compra fluida y coherente para el jugador.
+        /// </param>
         private void OnOfferHover(ShopOffer offer)
         {
             if (offer == null)
@@ -400,12 +468,24 @@ namespace SpellsAndRooms.scripts.Turns
 
             _statusLabel.Text = $"{offer.Title}: {offer.Description}";
         }
-
+        
+        /// <summary>
+        /// Maneja el evento de salida del cursor de una oferta, restableciendo el mensaje de estado al texto predeterminado. Este método se llama cuando el jugador mueve el cursor fuera de la carta de una oferta después de haberla inspeccionado, y se encarga de limpiar el mensaje de estado para evitar que quede información obsoleta o confusa en la interfaz. Restablecer el mensaje de estado a un texto genérico también ayuda a mantener la interfaz limpia y enfocada, permitiendo al jugador obtener información relevante solo cuando está interactuando activamente con las ofertas.
+        /// </summary>
         private void OnOfferHoverExit()
         {
             _statusLabel.Text = DefaultStatusText;
         }
 
+        /// <summary>
+        /// Intenta cargar una textura desde la ruta especificada, verificando primero si la ruta es válida y si el recurso existe. Si la ruta es inválida o el recurso no existe, devuelve null para evitar errores al intentar usar una textura inexistente. Este método se utiliza para cargar las imágenes asociadas a las ofertas en la tienda, asegurando que solo se intenten cargar texturas que realmente existen en el proyecto, lo que mejora la robustez de la tienda y evita problemas visuales causados por rutas incorrectas o recursos faltantes.
+        /// </summary>
+        /// <param name="path">
+        /// La ruta del recurso de la textura que se desea cargar. Se espera que esta ruta sea relativa al proyecto y que apunte a un recurso válido dentro de la carpeta de assets. Este método verificará si la ruta es nula, vacía o contiene solo espacios en blanco, y también comprobará si el recurso existe antes de intentar cargarlo. Si la ruta no es válida o el recurso no existe, se devolverá null para indicar que no se pudo cargar la textura, lo que permite manejar estos casos de manera segura en el código que utiliza esta función.
+        /// </param>
+        /// <returns>
+        /// La textura cargada desde la ruta especificada, o null si la ruta es inválida o el recurso no existe. Si se devuelve null, el código que llama a este método debe manejar este caso adecuadamente (por ejemplo, mostrando un marcador de posición en lugar de la imagen) para evitar errores visuales o de referencia a recursos inexistentes. Este método proporciona una forma segura de cargar texturas para las ofertas en la tienda, asegurando que solo se utilicen recursos válidos y disponibles en el proyecto.
+        /// </returns>
         private Texture2D TryLoadTexture(string path)
         {
             if (string.IsNullOrWhiteSpace(path) || !ResourceLoader.Exists(path))
@@ -413,7 +493,16 @@ namespace SpellsAndRooms.scripts.Turns
 
             return GD.Load<Texture2D>(path);
         }
-
+        
+        /// <summary>
+        /// Dado un conjunto de rutas candidatas, devuelve la primera ruta que corresponde a un recurso existente. Este método se utiliza para resolver las rutas de las imágenes asociadas a las ofertas en la tienda, permitiendo definir múltiples opciones de ruta para cada oferta (por ejemplo, una ruta específica basada en el nombre de la oferta y rutas de respaldo genéricas) y asegurando que se utilice la primera ruta válida que se encuentre. Esto mejora la flexibilidad del sistema de recursos, permitiendo que las ofertas tengan imágenes personalizadas cuando estén disponibles, pero también garantizando que siempre haya una imagen válida para mostrar incluso si no se han definido rutas específicas para ciertas ofertas.
+        /// </summary>
+        /// <param name="candidates">
+        /// Un conjunto de rutas de recursos candidatas que se desean verificar. Se espera que estas rutas sean relativas al proyecto y que apunten a recursos válidos dentro de la carpeta de assets. Este método iterará sobre las rutas proporcionadas en el orden dado, verificando si cada ruta es válida (no nula, no vacía, no solo espacios) y si el recurso existe en esa ruta. La primera ruta que cumpla con estos criterios será devuelta como resultado. Si ninguna de las rutas es válida o corresponde a un recurso existente, se devolverá una cadena vacía para indicar que no se encontró una ruta válida entre las opciones proporcionadas.
+        /// </param>
+        /// <returns>
+        /// La primera ruta de recurso válida que se encuentra en el conjunto de candidatos, o una cadena vacía si ninguna ruta es válida o corresponde a un recurso existente. Este resultado se utiliza para asignar la imagen de las ofertas en la tienda, asegurando que siempre se utilice una ruta válida para cargar la textura asociada a cada oferta. Si se devuelve una cadena vacía, el código que utiliza esta función debe manejar este caso adecuadamente (por ejemplo, mostrando un marcador de posición en lugar de la imagen) para evitar errores visuales o de referencia a recursos inexistentes.
+        /// </returns>
         private static string FirstExistingPath(params string[] candidates)
         {
             foreach (string candidate in candidates)
@@ -424,7 +513,16 @@ namespace SpellsAndRooms.scripts.Turns
 
             return string.Empty;
         }
-
+        
+        /// <summary>
+        /// Resuelve la ruta de la imagen para un consumible dado, utilizando su nombre y subtipo para determinar qué imagen asociar. Si el nombre o subtipo del consumible contiene palabras clave relacionadas con salud o maná, se asignan imágenes específicas para esos casos. Si no se encuentran coincidencias, se intenta cargar una imagen basada en el nombre del consumible, con rutas de respaldo genéricas para asegurarse de que siempre haya una imagen válida. Este método ayuda a mantener una presentación visual coherente y relevante para los consumibles en la tienda, permitiendo que los jugadores identifiquen rápidamente el tipo de consumible por su imagen.
+        /// </summary>
+        /// <param name="def">
+        /// La definición del consumible para el cual se desea resolver la ruta de la imagen. Se espera que este objeto contenga información relevante como el nombre y subtipo del consumible, que se utilizan para determinar qué imagen asociar. Es importante que esta definición esté completamente inicializada y que sus propiedades sean válidas, ya que este método depende de esa información para realizar las comparaciones de palabras clave y construir las rutas de las imágenes. Si el nombre o subtipo del consumible no contienen palabras clave específicas, este método intentará cargar una imagen basada en el nombre del consumible, lo que proporciona flexibilidad para agregar nuevos consumibles sin necesidad de modificar el código de resolución de imágenes.
+        /// </param>
+        /// <returns>
+        /// La ruta de la imagen asociada al consumible dado, determinada por su nombre y subtipo. Si el nombre o subtipo contienen palabras clave relacionadas con salud o maná, se devolverán rutas específicas para esos casos. Si no se encuentran coincidencias, se intentará cargar una imagen basada en el nombre del consumible, con rutas de respaldo genéricas para garantizar que siempre haya una imagen válida. Si ninguna de las rutas es válida o corresponde a un recurso existente, se devolverá una cadena vacía, lo que indica que no se encontró una imagen específica para ese consumible. Este resultado se utiliza para asignar la imagen de la oferta correspondiente al consumible en la tienda.
+        /// </returns>
         private string ResolveConsumableImagePath(ItemDatabase.ConsumableDefinition def)
         {
             string name = Normalize(def.Name);
@@ -441,14 +539,32 @@ namespace SpellsAndRooms.scripts.Turns
                 "res://assets/Items/Consumable/Poti.png",
                 "res://assets/Items/Consumable/PotiManai.png");
         }
-
+        
+        /// <summary>
+        /// Resuelve la ruta de la imagen para un pasivo dado, utilizando su nombre y tipo para determinar qué imagen asociar. Si el nombre o tipo del pasivo contiene palabras clave relacionadas con defensa, ataque o velocidad, se asignan imágenes específicas para esos casos. Si no se encuentran coincidencias, se intenta cargar una imagen basada en el nombre del pasivo, con rutas de respaldo genéricas para asegurarse de que siempre haya una imagen válida. Este método ayuda a mantener una presentación visual coherente y relevante para los pasivos en la tienda, permitiendo que los jugadores identifiquen rápidamente el tipo de pasivo por su imagen.
+        /// </summary>
+        /// <param name="def">
+        /// La definición del pasivo para el cual se desea resolver la ruta de la imagen. Se espera que este objeto contenga información relevante como el nombre y tipo del pasivo, que se utilizan para determinar qué imagen asociar. Es importante que esta definición esté completamente inicializada y que sus propiedades sean válidas, ya que este método depende de esa información para realizar las comparaciones de palabras clave y construir las rutas de las imágenes. Si el nombre o tipo del pasivo no contienen palabras clave específicas, este método intentará cargar una imagen basada en el nombre del pasivo, lo que proporciona flexibilidad para agregar nuevos pasivos sin necesidad de modificar el código de resolución de imágenes.
+        /// </param>
+        /// <returns>
+        /// La ruta de la imagen asociada al pasivo dado, determinada por su nombre y tipo. Si el nombre o tipo contienen palabras clave relacionadas con defensa, ataque o velocidad, se devolverán rutas específicas para esos casos. Si no se encuentran coincidencias, se intentará cargar una imagen basada en el nombre del pasivo, con rutas de respaldo genéricas para garantizar que siempre haya una imagen válida. Si ninguna de las rutas es válida o corresponde a un recurso existente, se devolverá una cadena vacía, lo que indica que no se encontró una imagen específica para ese pasivo. Este resultado se utiliza para asignar la imagen de la oferta correspondiente al pasivo en la tienda.
+        /// </returns>
         private string ResolvePassiveImagePath(ItemDatabase.PassiveDefinition def)
         {
             return FirstExistingPath(
                 $"res://assets/Items/Passive/{def.Name}.png",
                 "res://assets/Items/Passive/pecheGris.png");
         }
-
+        
+        /// <summary>
+        /// Resuelve la ruta de la imagen para una habilidad dada, utilizando su nombre para determinar qué imagen asociar. Si el nombre de la habilidad contiene palabras clave relacionadas con elementos como fuego, agua o tierra, se asignan imágenes específicas para esos casos. Si no se encuentran coincidencias, se intenta cargar una imagen basada en el nombre de la habilidad, con rutas de respaldo genéricas para asegurarse de que siempre haya una imagen válida. Este método ayuda a mantener una presentación visual coherente y relevante para las habilidades en la tienda, permitiendo que los jugadores identifiquen rápidamente el tipo de habilidad por su imagen.
+        /// </summary>
+        /// <param name="def">
+        /// La definición de la habilidad para la cual se desea resolver la ruta de la imagen. Se espera que este objeto contenga información relevante como el nombre de la habilidad, que se utiliza para determinar qué imagen asociar. Es importante que esta definición esté completamente inicializada y que sus propiedades sean válidas, ya que este método depende de esa información para realizar las comparaciones de palabras clave y construir las rutas de las imágenes. Si el nombre de la habilidad no contiene palabras clave específicas, este método intentará cargar una imagen basada en el nombre de la habilidad, lo que proporciona flexibilidad para agregar nuevas habilidades sin necesidad de modificar el código de resolución de imágenes.
+        /// </param>
+        /// <returns>
+        /// La ruta de la imagen asociada a la habilidad dada, determinada por su nombre. Si el nombre contiene palabras clave relacionadas con elementos como fuego, agua o tierra, se devolverán rutas específicas para esos casos. Si no se encuentran coincidencias, se intentará cargar una imagen basada en el nombre de la habilidad, con rutas de respaldo genéricas para garantizar que siempre haya una imagen válida. Si ninguna de las rutas es válida o corresponde a un recurso existente, se devolverá una cadena vacía, lo que indica que no se encontró una imagen específica para esa habilidad. Este resultado se utiliza para asignar la imagen de la oferta correspondiente a la habilidad en la tienda.
+        /// </returns>
         private string ResolveSkillImagePath(SkillDatabase.SkillDefinition def)
         {
             string name = Normalize(def.Name);
@@ -464,12 +580,24 @@ namespace SpellsAndRooms.scripts.Turns
                 "res://assets/Characters/Enemy/Slime.png",
                 "res://assets/Characters/Player/CaballeroNegro.png");
         }
-
+        
+        /// <summary>
+        /// Normaliza una cadena para facilitar las comparaciones, convirtiéndola a minúsculas y eliminando espacios innecesarios. Este método se utiliza principalmente para comparar nombres y tipos de consumibles, pasivos y habilidades al resolver las rutas de las imágenes asociadas a las ofertas en la tienda. Al normalizar las cadenas, se asegura que las comparaciones sean más robustas y no se vean afectadas por diferencias en mayúsculas, espacios adicionales o formatos inconsistentes en los nombres y tipos definidos en la base de datos. Esto ayuda a mejorar la precisión de la asignación de imágenes a las ofertas, asegurando que se utilicen las imágenes correctas según el contenido de cada oferta.
+        /// </summary>
+        /// <param name="value">
+        /// La cadena que se desea normalizar. Se espera que esta cadena pueda contener cualquier combinación de mayúsculas, minúsculas y espacios, y este método se encargará de convertirla a un formato estándar (todo en minúsculas y sin espacios innecesarios) para facilitar las comparaciones. Es importante que esta cadena no sea nula, aunque el método maneja ese caso devolviendo una cadena vacía, lo que permite que el proceso de normalización sea seguro incluso si se reciben entradas inesperadas o mal formateadas.
+        /// </param>
+        /// <returns>
+        /// La cadena normalizada, convertida a minúsculas y con espacios innecesarios eliminados. Si la cadena de entrada es nula, se devuelve una cadena vacía. Este resultado se utiliza para realizar comparaciones más robustas al resolver las rutas de las imágenes para las ofertas en la tienda, asegurando que las comparaciones no se vean afectadas por diferencias en el formato de los nombres y tipos definidos en la base de datos. Al normalizar las cadenas, se mejora la precisión de la asignación de imágenes a las ofertas, lo que contribuye a una mejor presentación visual en la tienda.
+        /// </returns>
         private static string Normalize(string value)
         {
             return (value ?? string.Empty).Trim().ToLowerInvariant();
         }
 
+        /// <summary>
+        /// Genera la lista de ofertas activas para la tienda, seleccionando aleatoriamente entre consumibles, pasivos y habilidades según las probabilidades definidas. Este método construye pools de ofertas disponibles para cada tipo (consumibles, pasivos y habilidades) basados en la base de datos y el estado actual del jugador (por ejemplo, evitando ofrecer habilidades que el jugador ya tiene). Luego, selecciona ofertas de estos pools utilizando un sistema de pesos para determinar qué tipo de oferta es más probable que aparezca, asegurándose de no repetir ofertas ya seleccionadas en la misma generación. Si no hay suficientes ofertas disponibles para llenar todas las ranuras, se completa con cualquier oferta restante para garantizar que siempre haya un número completo de ofertas activas en la tienda. Este método se llama cada vez que se necesita actualizar las ofertas en la tienda, como al entrar por primera vez o después de comprar una oferta.
+        /// </summary>
         private void GenerateOffers()
         {
             _activeOffers.Clear();
@@ -518,7 +646,13 @@ namespace SpellsAndRooms.scripts.Turns
                     _activeOffers.Add(offer);
             }
         }
-
+        
+        /// <summary>
+        /// Construye la lista de ofertas de consumibles disponibles para la tienda, basándose en las definiciones de consumibles en la base de datos. Este método itera sobre todas las definiciones de consumibles, creando una oferta para cada una que incluye información relevante como el tipo, ID, título, subtítulo, descripción, ruta de la imagen y precio. La ruta de la imagen se resuelve utilizando el método ResolveConsumableImagePath para asignar imágenes específicas según el nombre y subtipo del consumible. Esta lista se utiliza posteriormente para seleccionar aleatoriamente qué consumibles ofrecer en la tienda, asegurando que solo se incluyan aquellos que están definidos en la base de datos y que tengan toda la información necesaria para ser presentados correctamente al jugador.
+        /// </summary>
+        /// <returns>
+        /// Una lista de ofertas de consumibles disponibles para la tienda, construida a partir de las definiciones de consumibles en la base de datos. Cada oferta incluye información como el tipo (consumible), ID único, título, subtítulo, descripción, ruta de la imagen y precio. Esta lista se utiliza para seleccionar aleatoriamente qué consumibles ofrecer al jugador en la tienda, asegurando que solo se incluyan aquellos que están definidos en la base de datos y que tengan toda la información necesaria para ser presentados correctamente. Si no hay definiciones de consumibles en la base de datos, esta lista estará vacía, lo que significa que no se ofrecerán consumibles en la tienda.
+        /// </returns>
         private List<ShopOffer> BuildConsumablePool()
         {
             var pool = new List<ShopOffer>();
@@ -538,7 +672,13 @@ namespace SpellsAndRooms.scripts.Turns
 
             return pool;
         }
-
+        
+        /// <summary>
+        /// Construye la lista de ofertas de pasivos disponibles para la tienda, basándose en las definiciones de pasivos en la base de datos. Este método itera sobre todas las definiciones de pasivos, creando una oferta para cada una que incluye información relevante como el tipo, ID, título, subtítulo, descripción, ruta de la imagen y precio. La ruta de la imagen se resuelve utilizando el método ResolvePassiveImagePath para asignar imágenes específicas según el nombre y tipo del pasivo. Esta lista se utiliza posteriormente para seleccionar aleatoriamente qué pasivos ofrecer en la tienda, asegurando que solo se incluyan aquellos que están definidos en la base de datos y que tengan toda la información necesaria para ser presentados correctamente al jugador.
+        /// </summary>
+        /// <returns>
+        /// Una lista de ofertas de pasivos disponibles para la tienda, construida a partir de las definiciones de pasivos en la base de datos. Cada oferta incluye información como el tipo (pasivo), ID único, título, subtítulo, descripción, ruta de la imagen y precio. Esta lista se utiliza para seleccionar aleatoriamente qué pasivos ofrecer al jugador en la tienda, asegurando que solo se incluyan aquellos que están definidos en la base de datos y que tengan toda la información necesaria para ser presentados correctamente. Si no hay definiciones de pasivos en la base de datos, esta lista estará vacía, lo que significa que no se ofrecerán pasivos en la tienda.
+        /// </returns>
         private List<ShopOffer> BuildPassivePool()
         {
             var pool = new List<ShopOffer>();
@@ -558,7 +698,13 @@ namespace SpellsAndRooms.scripts.Turns
 
             return pool;
         }
-
+        
+        /// <summary>
+        /// Construye la lista de ofertas de habilidades disponibles para la tienda, basándose en las definiciones de habilidades en la base de datos y el estado actual del jugador. Este método itera sobre todas las definiciones de habilidades, creando una oferta para cada una que el jugador aún no posee, incluyendo información relevante como el tipo, ID, título, subtítulo, descripción, ruta de la imagen y precio. La ruta de la imagen se resuelve utilizando el método ResolveSkillImagePath para asignar imágenes específicas según el nombre de la habilidad. Esta lista se utiliza posteriormente para seleccionar aleatoriamente qué habilidades ofrecer en la tienda, asegurando que solo se incluyan aquellas que están definidas en la base de datos y que el jugador aún no ha aprendido, lo que proporciona una experiencia de compra relevante y personalizada.
+        /// </summary>
+        /// <returns>
+        /// Una lista de ofertas de habilidades disponibles para la tienda, construida a partir de las definiciones de habilidades en la base de datos y el estado actual del jugador. Cada oferta incluye información como el tipo (habilidad), ID único, título, subtítulo, descripción, ruta de la imagen y precio. Solo se incluyen habilidades que el jugador aún no posee, lo que garantiza que las ofertas sean relevantes y personalizadas para el jugador. Si no hay definiciones de habilidades en la base de datos o si el jugador ya posee todas las habilidades disponibles, esta lista estará vacía, lo que significa que no se ofrecerán habilidades en la tienda.
+        /// </returns>
         private List<ShopOffer> BuildSkillPool()
         {
             var pool = new List<ShopOffer>();
@@ -581,7 +727,25 @@ namespace SpellsAndRooms.scripts.Turns
 
             return pool;
         }
-
+        
+        /// <summary>
+        /// Selecciona aleatoriamente un tipo de oferta (consumible, pasivo o habilidad) basado en las probabilidades definidas y la disponibilidad de ofertas para cada tipo. Este método verifica qué tipos de ofertas tienen opciones disponibles que aún no han sido consumidas en la generación actual, calcula el peso total basado en los tipos disponibles y luego realiza una tirada aleatoria para seleccionar un tipo de oferta según esos pesos. Si no hay tipos de ofertas disponibles, devuelve null para indicar que no se puede seleccionar ningún tipo. Este método es fundamental para garantizar una distribución equilibrada y variada de ofertas en la tienda, adaptándose dinámicamente a la disponibilidad de ofertas en cada categoría.
+        /// </summary>
+        /// <param name="consumables">
+        /// La lista de ofertas de consumibles disponibles para la tienda. Se espera que esta lista contenga todas las ofertas de consumibles que se pueden ofrecer al jugador, basándose en las definiciones de consumibles en la base de datos. Este método verificará si hay ofertas de consumibles disponibles que aún no han sido consumidas en la generación actual para determinar si el tipo de oferta de consumible puede ser seleccionado. Si esta lista está vacía o si todas las ofertas han sido consumidas, el peso para el tipo de oferta de consumible se considerará como cero, lo que afectará la probabilidad de selección en el proceso de selección ponderada.
+        /// </param>
+        /// <param name="passives">
+        /// La lista de ofertas de pasivos disponibles para la tienda. Se espera que esta lista contenga todas las ofertas de pasivos que se pueden ofrecer al jugador, basándose en las definiciones de pasivos en la base de datos. Este método verificará si hay ofertas de pasivos disponibles que aún no han sido consumidas en la generación actual para determinar si el tipo de oferta de pasivo puede ser seleccionado. Si esta lista está vacía o si todas las ofertas han sido consumidas, el peso para el tipo de oferta de pasivo se considerará como cero, lo que afectará la probabilidad de selección en el proceso de selección ponderada.
+        /// </param>
+        /// <param name="skills">
+        /// La lista de ofertas de habilidades disponibles para la tienda. Se espera que esta lista contenga todas las ofertas de habilidades que se pueden ofrecer al jugador, basándose en las definiciones de habilidades en la base de datos y el estado actual del jugador (es decir, solo incluir habilidades que el jugador aún no posee). Este método verificará si hay ofertas de habilidades disponibles que aún no han sido consumidas en la generación actual para determinar si el tipo de oferta de habilidad puede ser seleccionado. Si esta lista está vacía o si todas las ofertas han sido consumidas, el peso para el tipo de oferta de habilidad se considerará como cero, lo que afectará la probabilidad de selección en el proceso de selección ponderada.
+        /// </param>
+        /// <param name="consumedIds">
+        /// Un conjunto de IDs de ofertas que ya han sido seleccionadas en la generación actual. Este conjunto se utiliza para verificar si una oferta específica ya ha sido consumida (es decir, ya ha sido seleccionada para ser una oferta activa) durante el proceso de selección ponderada. Si una oferta tiene un ID que está presente en este conjunto, se considera consumida y no se tendrá en cuenta para la selección de tipos de ofertas disponibles. Este mecanismo asegura que no se seleccionen ofertas repetidas durante la generación de las ofertas activas para la tienda, lo que contribuye a una experiencia de compra más variada y equilibrada para el jugador.
+        /// </param>
+        /// <returns>
+        /// El tipo de oferta seleccionado aleatoriamente basado en las probabilidades definidas y la disponibilidad de ofertas para cada tipo. Si no hay tipos de ofertas disponibles (es decir, si todas las listas están vacías o si todas las ofertas han sido consumidas), se devuelve null para indicar que no se puede seleccionar ningún tipo. Este resultado se utiliza en el proceso de generación de ofertas para determinar qué tipo de oferta seleccionar a continuación, asegurando una distribución equilibrada y variada de ofertas en la tienda según la disponibilidad actual.
+        /// </returns>
         private OfferType? PickWeightedType(
             List<ShopOffer> consumables,
             List<ShopOffer> passives,
@@ -619,7 +783,19 @@ namespace SpellsAndRooms.scripts.Turns
 
             return null;
         }
-
+        
+        /// <summary>
+        /// Verifica si hay ofertas disponibles en la lista dada que aún no han sido consumidas, es decir, que no están presentes en el conjunto de IDs consumidos. Este método se utiliza para determinar si un tipo de oferta (consumible, pasivo o habilidad) tiene opciones disponibles para ser seleccionadas durante el proceso de generación de ofertas activas para la tienda. Si al menos una oferta en la lista no ha sido consumida, se considera que hay ofertas disponibles para ese tipo, lo que afecta la probabilidad de selección en el proceso de selección ponderada.
+        /// </summary>
+        /// <param name="offers">
+        /// La lista de ofertas que se desea verificar para disponibilidad. Se espera que esta lista contenga todas las ofertas de un tipo específico (consumibles, pasivos o habilidades) que se pueden ofrecer al jugador en la tienda. Este método iterará sobre esta lista para verificar si hay al menos una oferta cuyo ID no esté presente en el conjunto de IDs consumidos, lo que indicaría que esa oferta aún está disponible para ser seleccionada como una oferta activa en la tienda. Si la lista está vacía o si todas las ofertas han sido consumidas, este método devolverá false, indicando que no hay ofertas disponibles para ese tipo.
+        /// </param>
+        /// <param name="consumedIds">
+        /// Un conjunto de IDs de ofertas que ya han sido seleccionadas en la generación actual. Este conjunto se utiliza para verificar si una oferta específica ya ha sido consumida (es decir, ya ha sido seleccionada para ser una oferta activa) durante el proceso de generación de ofertas. Si una oferta tiene un ID que está presente en este conjunto, se considera consumida y no se tendrá en cuenta como disponible para la selección de tipos de ofertas. Este mecanismo asegura que no se seleccionen ofertas repetidas durante la generación de las ofertas activas para la tienda, lo que contribuye a una experiencia de compra más variada y equilibrada para el jugador.
+        /// </param>
+        /// <returns>
+        /// true si hay al menos una oferta en la lista que no ha sido consumida (es decir, cuyo ID no está presente en el conjunto de IDs consumidos), o false si todas las ofertas han sido consumidas o si la lista está vacía. Este resultado se utiliza para determinar si un tipo de oferta tiene opciones disponibles para ser seleccionadas durante el proceso de generación de ofertas activas para la tienda, lo que afecta la probabilidad de selección en el proceso de selección ponderada. Si se devuelve false, el peso para ese tipo de oferta se considerará como cero, lo que reducirá la probabilidad de que ese tipo sea seleccionado.
+        /// </returns>
         private static bool HasAvailable(List<ShopOffer> offers, HashSet<string> consumedIds)
         {
             foreach (ShopOffer offer in offers)
@@ -630,7 +806,28 @@ namespace SpellsAndRooms.scripts.Turns
 
             return false;
         }
-
+        
+        /// <summary>
+        /// Selecciona aleatoriamente una oferta de la lista dada que no haya sido consumida (es decir, cuyo ID no esté presente en el conjunto de IDs consumidos). Este método se utiliza para seleccionar una oferta específica de un tipo determinado (consumible, pasivo o habilidad) durante el proceso de generación de ofertas activas para la tienda. Si hay ofertas disponibles que no han sido consumidas, se selecciona una de ellas al azar y se devuelve como resultado. Si no hay ofertas disponibles, se devuelve null para indicar que no se pudo seleccionar ninguna oferta de ese tipo.
+        /// </summary>
+        /// <param name="offerType">
+        /// El tipo de oferta que se desea seleccionar (consumible, pasivo o habilidad). Este parámetro se utiliza para determinar de qué lista de ofertas se debe seleccionar la oferta específica. Dependiendo del valor de este parámetro, el método accederá a la lista correspondiente (consumables, passives o skills) para buscar ofertas que no hayan sido consumidas y seleccionar una de ellas al azar. Es importante que este parámetro tenga un valor válido que corresponda a uno de los tipos de oferta definidos, ya que de lo contrario el método no podrá determinar correctamente de qué lista seleccionar la oferta y podría devolver null.
+        /// </param>
+        /// <param name="consumables">
+        /// La lista de ofertas de consumibles disponibles para la tienda. Se espera que esta lista contenga todas las ofertas de consumibles que se pueden ofrecer al jugador, basándose en las definiciones de consumibles en la base de datos. Este método verificará esta lista para encontrar ofertas de consumibles que no hayan sido consumidas (es decir, cuyos IDs no estén presentes en el conjunto de IDs consumidos) y seleccionará una de ellas al azar si el tipo de oferta solicitado es consumible. Si esta lista está vacía o si todas las ofertas han sido consumidas, este método no seleccionará ninguna oferta de consumible y devolverá null.
+        /// </param>
+        /// <param name="passives">
+        /// La lista de ofertas de pasivos disponibles para la tienda. Se espera que esta lista contenga todas las ofertas de pasivos que se pueden ofrecer al jugador, basándose en las definiciones de pasivos en la base de datos. Este método verificará esta lista para encontrar ofertas de pasivos que no hayan sido consumidas (es decir, cuyos IDs no estén presentes en el conjunto de IDs consumidos) y seleccionará una de ellas al azar si el tipo de oferta solicitado es pasivo. Si esta lista está vacía o si todas las ofertas han sido consumidas, este método no seleccionará ninguna oferta de pasivo y devolverá null.
+        /// </param>
+        /// <param name="skills">
+        /// La lista de ofertas de habilidades disponibles para la tienda. Se espera que esta lista contenga todas las ofertas de habilidades que se pueden ofrecer al jugador, basándose en las definiciones de habilidades en la base de datos y el estado actual del jugador (es decir, solo incluir habilidades que el jugador aún no posee). Este método verificará esta lista para encontrar ofertas de habilidades que no hayan sido consumidas (es decir, cuyos IDs no estén presentes en el conjunto de IDs consumidos) y seleccionará una de ellas al azar si el tipo de oferta solicitado es habilidad. Si esta lista está vacía o si todas las ofertas han sido consumidas, este método no seleccionará ninguna oferta de habilidad y devolverá null.
+        /// </param>
+        /// <param name="consumedIds">
+        /// Un conjunto de IDs de ofertas que ya han sido seleccionadas en la generación actual. Este conjunto se utiliza para verificar si una oferta específica ya ha sido consumida (es decir, ya ha sido seleccionada para ser una oferta activa) durante el proceso de generación de ofertas. Si una oferta tiene un ID que está presente en este conjunto, se considera consumida y no se tendrá en cuenta para la selección de ofertas disponibles. Este mecanismo asegura que no se seleccionen ofertas repetidas durante la generación de las ofertas activas para la tienda, lo que contribuye a una experiencia de compra más variada y equilibrada para el jugador. Al pasar este conjunto al método, se garantiza que solo se seleccionen ofertas que aún no han sido consumidas en la generación actual.
+        /// </param>
+        /// <returns>
+        /// Una oferta seleccionada aleatoriamente de la lista correspondiente al tipo de oferta dado, que no haya sido consumida (es decir, cuyo ID no esté presente en el conjunto de IDs consumidos). Si el tipo de oferta dado es consumible, se seleccionará una oferta de la lista de consumibles; si es pasivo, se seleccionará una oferta de la lista de pasivos; y si es habilidad, se seleccionará una oferta de la lista de habilidades. Si no hay ofertas disponibles para el tipo dado (es decir, si todas las ofertas han sido consumidas o si la lista correspondiente está vacía), se devolverá null para indicar que no se pudo seleccionar ninguna oferta de ese tipo. Este resultado se utiliza en el proceso de generación de ofertas para agregar una oferta específica a la lista de ofertas activas en la tienda.
+        /// </returns>
         private ShopOffer PickOffer(
             OfferType offerType,
             List<ShopOffer> consumables,
@@ -661,7 +858,13 @@ namespace SpellsAndRooms.scripts.Turns
 
             return candidates[_rng.RandiRange(0, candidates.Count - 1)];
         }
-
+        
+        /// <summary>
+        /// Maneja la lógica cuando el jugador presiona el botón de compra para una oferta específica. Este método verifica si el jugador puede comprar la oferta (es decir, si tiene suficiente oro y si la oferta no ha sido comprada previamente), y luego aplica los efectos de la oferta al jugador. Si la oferta es una habilidad y el jugador ya tiene el máximo de habilidades, se muestra un mensaje para elegir una habilidad a reemplazar en lugar de comprar directamente. Si la compra se realiza con éxito, se actualiza el estado del jugador (por ejemplo, restando el oro) y se marca la oferta como comprada, lo que afecta su presentación en la tienda. Este método es fundamental para manejar la interacción del jugador con las ofertas en la tienda y garantizar que las compras se realicen de manera coherente con las reglas del juego.
+        /// </summary>
+        /// <param name="offerIndex">
+        /// El índice de la oferta que el jugador ha seleccionado para comprar. Este índice se utiliza para identificar qué oferta específica se está intentando comprar dentro de la lista de ofertas activas en la tienda. Es importante que este índice sea válido (es decir, que esté dentro del rango de la lista de ofertas activas) para evitar errores al acceder a la oferta correspondiente. Este parámetro se pasa desde el botón de compra asociado a cada oferta, lo que permite que el método sepa exactamente qué oferta se está intentando comprar y pueda aplicar los efectos correctos al jugador.
+        /// </param>
         private void OnBuyPressed(int offerIndex)
         {
             if (_isChoosingReplacement)
@@ -716,7 +919,16 @@ namespace SpellsAndRooms.scripts.Turns
             _statusLabel.Text = $"Compraste {offer.Title}.";
             RefreshUi();
         }
-
+        
+        /// <summary>
+        /// Aplica los efectos de una oferta comprada al jugador, actualizando su estado según el tipo de oferta (consumible, pasivo o habilidad). Este método maneja la lógica específica para cada tipo de oferta, como agregar un consumible al inventario del jugador, otorgar un pasivo o enseñar una nueva habilidad. Si la aplicación de la oferta se realiza con éxito, se devuelve true; de lo contrario, se devuelve false para indicar que no se pudieron aplicar los efectos de la oferta. Este método es crucial para garantizar que las compras en la tienda tengan un impacto real y coherente en el estado del jugador, reflejando correctamente los beneficios asociados a cada oferta.
+        /// </summary>
+        /// <param name="offer">
+        /// La oferta que se ha comprado y cuyos efectos se deben aplicar al jugador. Este objeto contiene toda la información relevante sobre la oferta, como su tipo (consumible, pasivo o habilidad), ID, título, descripción, precio y cualquier otra información necesaria para determinar cómo aplicar sus efectos al jugador. Es importante que este objeto sea válido y que su tipo esté correctamente definido para que el método pueda manejar la aplicación de los efectos de manera adecuada según las reglas del juego. Este parámetro se pasa desde el método de compra después de verificar que la compra es válida y se utiliza para actualizar el estado del jugador en consecuencia.
+        /// </param>
+        /// <returns>
+        /// true si los efectos de la oferta se aplicaron con éxito al jugador, o false si no se pudieron aplicar por alguna razón (por ejemplo, si la oferta es inválida o si hubo un error al actualizar el estado del jugador). Este resultado se utiliza para determinar si la compra se completó correctamente y para actualizar el mensaje de estado en la tienda en consecuencia. Si se devuelve false, el método de compra puede mostrar un mensaje de error al jugador para indicar que no se pudo completar la compra, mientras que si se devuelve true, se puede mostrar un mensaje de éxito y actualizar la interfaz de usuario para reflejar los cambios en el estado del jugador.
+        /// </returns>
         private bool ApplyOffer(ShopOffer offer)
         {
             switch (offer.Type)
@@ -734,7 +946,16 @@ namespace SpellsAndRooms.scripts.Turns
                     return false;
             }
         }
-
+        
+        /// <summary>
+        /// Aplica los efectos de una oferta de consumible al jugador, agregando el consumible correspondiente a su inventario. Este método busca la definición del consumible en la base de datos utilizando el ID de la oferta, y si encuentra una coincidencia, crea un nuevo objeto de consumible con las propiedades definidas en la base de datos y lo agrega al inventario del jugador. Si la aplicación del consumible se realiza con éxito, se devuelve true; de lo contrario, se devuelve false para indicar que no se pudieron aplicar los efectos del consumible (por ejemplo, si no se encontró la definición en la base de datos). Este método es esencial para garantizar que las compras de consumibles en la tienda tengan un impacto real y coherente en el estado del jugador, reflejando correctamente los beneficios asociados a cada consumible.
+        /// </summary>
+        /// <param name="offer">
+        /// La oferta de consumible que se ha comprado y cuyos efectos se deben aplicar al jugador. Este objeto contiene toda la información relevante sobre la oferta, como su tipo (consumible), ID, título, descripción, precio y cualquier otra información necesaria para determinar cómo aplicar sus efectos al jugador. Es importante que este objeto sea válido y que su ID corresponda a una definición de consumible en la base de datos para que el método pueda manejar la aplicación de los efectos de manera adecuada según las reglas del juego. Este parámetro se pasa desde el método de compra después de verificar que la compra es válida y se utiliza para actualizar el estado del jugador en consecuencia.
+        /// </param>
+        /// <returns>
+        /// true si los efectos del consumible se aplicaron con éxito al jugador (es decir, si se encontró la definición del consumible en la base de datos y se agregó correctamente al inventario del jugador), o false si no se pudieron aplicar por alguna razón (por ejemplo, si no se encontró la definición en la base de datos). Este resultado se utiliza para determinar si la compra del consumible se completó correctamente y para actualizar el mensaje de estado en la tienda en consecuencia. Si se devuelve false, el método de compra puede mostrar un mensaje de error al jugador para indicar que no se pudo completar la compra, mientras que si se devuelve true, se puede mostrar un mensaje de éxito y actualizar la interfaz de usuario para reflejar los cambios en el estado del jugador.
+        /// </returns>
         private bool ApplyConsumable(ShopOffer offer)
         {
             ItemDatabase.ConsumableDefinition selected = null;
@@ -761,7 +982,16 @@ namespace SpellsAndRooms.scripts.Turns
 
             return true;
         }
-
+        
+        /// <summary>
+        /// Aplica los efectos de una oferta de pasivo al jugador, otorgándole el pasivo correspondiente. Este método busca la definición del pasivo en la base de datos utilizando el ID de la oferta, y si encuentra una coincidencia, crea un nuevo objeto de pasivo con las propiedades definidas en la base de datos y lo agrega a la lista de pasivos del jugador. Si la aplicación del pasivo se realiza con éxito, se devuelve true; de lo contrario, se devuelve false para indicar que no se pudieron aplicar los efectos del pasivo (por ejemplo, si no se encontró la definición en la base de datos). Este método es esencial para garantizar que las compras de pasivos en la tienda tengan un impacto real y coherente en el estado del jugador, reflejando correctamente los beneficios asociados a cada pasivo.
+        /// </summary>
+        /// <param name="offer">
+        /// La oferta de pasivo que se ha comprado y cuyos efectos se deben aplicar al jugador. Este objeto contiene toda la información relevante sobre la oferta, como su tipo (pasivo), ID, título, descripción, precio y cualquier otra información necesaria para determinar cómo aplicar sus efectos al jugador. Es importante que este objeto sea válido y que su ID corresponda a una definición de pasivo en la base de datos para que el método pueda manejar la aplicación de los efectos de manera adecuada según las reglas del juego. Este parámetro se pasa desde el método de compra después de verificar que la compra es válida y se utiliza para actualizar el estado del jugador en consecuencia.
+        /// </param>
+        /// <returns>
+        /// true si los efectos del pasivo se aplicaron con éxito al jugador (es decir, si se encontró la definición del pasivo en la base de datos y se agregó correctamente a la lista de pasivos del jugador), o false si no se pudieron aplicar por alguna razón (por ejemplo, si no se encontró la definición en la base de datos). Este resultado se utiliza para determinar si la compra del pasivo se completó correctamente y para actualizar el mensaje de estado en la tienda en consecuencia. Si se devuelve false, el método de compra puede mostrar un mensaje de error al jugador para indicar que no se pudo completar la compra, mientras que si se devuelve true, se puede mostrar un mensaje de éxito y actualizar la interfaz de usuario para reflejar los cambios en el estado del jugador.
+        /// </returns>
         private bool ApplyPassive(ShopOffer offer)
         {
             ItemDatabase.PassiveDefinition selected = null;
@@ -787,7 +1017,16 @@ namespace SpellsAndRooms.scripts.Turns
 
             return true;
         }
-
+        
+        /// <summary>
+        /// Aplica los efectos de una oferta de habilidad al jugador, enseñándole la habilidad correspondiente. Este método busca la definición de la habilidad en la base de datos utilizando el ID de la oferta, y si encuentra una coincidencia, crea un nuevo objeto de habilidad con las propiedades definidas en la base de datos y lo agrega a la lista de habilidades del jugador. Si el jugador ya tiene el máximo de habilidades permitidas, este método no aplicará la nueva habilidad y devolverá false para indicar que no se pudieron aplicar los efectos de la oferta. Si la aplicación de la habilidad se realiza con éxito, se devuelve true; de lo contrario, se devuelve false para indicar que no se pudieron aplicar los efectos de la habilidad (por ejemplo, si no se encontró la definición en la base de datos o si el jugador ya tiene el máximo de habilidades). Este método es esencial para garantizar que las compras de habilidades en la tienda tengan un impacto real y coherente en el estado del jugador, reflejando correctamente los beneficios asociados a cada habilidad.
+        /// </summary>
+        /// <param name="offer">
+        /// La oferta de habilidad que se ha comprado y cuyos efectos se deben aplicar al jugador. Este objeto contiene toda la información relevante sobre la oferta, como su tipo (habilidad), ID, título, descripción, precio y cualquier otra información necesaria para determinar cómo aplicar sus efectos al jugador. Es importante que este objeto sea válido y que su ID corresponda a una definición de habilidad en la base de datos para que el método pueda manejar la aplicación de los efectos de manera adecuada según las reglas del juego. Este parámetro se pasa desde el método de compra después de verificar que la compra es válida y se utiliza para actualizar el estado del jugador en consecuencia. Si el jugador ya tiene el máximo de habilidades permitidas, este método no aplicará la nueva habilidad y devolverá false para indicar que no se pudieron aplicar los efectos de la oferta.
+        /// </param>
+        /// <returns>
+        /// true si los efectos de la habilidad se aplicaron con éxito al jugador (es decir, si se encontró la definición de la habilidad en la base de datos y se agregó correctamente a la lista de habilidades del jugador), o false si no se pudieron aplicar por alguna razón (por ejemplo, si no se encontró la definición en la base de datos o si el jugador ya tiene el máximo de habilidades permitidas). Este resultado se utiliza para determinar si la compra de la habilidad se completó correctamente y para actualizar el mensaje de estado en la tienda en consecuencia. Si se devuelve false, el método de compra puede mostrar un mensaje de error al jugador para indicar que no se pudo completar la compra, mientras que si se devuelve true, se puede mostrar un mensaje de éxito y actualizar la interfaz de usuario para reflejar los cambios en el estado del jugador.
+        /// </returns>
         private bool ApplySkill(ShopOffer offer)
         {
             string skillName = offer.Id.Replace("skill:", string.Empty);
@@ -799,7 +1038,16 @@ namespace SpellsAndRooms.scripts.Turns
 
             return _player.TryLearnSkill(skill);
         }
-
+        
+        /// <summary>
+        /// Muestra un mensaje para que el jugador elija una habilidad a reemplazar cuando intenta comprar una nueva habilidad pero ya tiene el máximo de habilidades permitidas. Este método configura la interfaz de usuario para mostrar una lista de las habilidades actuales del jugador, permitiéndole seleccionar una de ellas para reemplazar por la nueva habilidad que está intentando comprar. Si el jugador selecciona una habilidad para reemplazar, se confirmará la compra y se aplicarán los cambios correspondientes al estado del jugador. Si el jugador cancela la selección o si ocurre algún error durante el proceso, se ocultará el mensaje y se mantendrá el estado actual sin cambios. Este método es crucial para manejar situaciones en las que el jugador desea aprender una nueva habilidad pero ya ha alcanzado su límite de habilidades, proporcionando una forma de gestionar esta limitación de manera interactiva y coherente con las reglas del juego.
+        /// </summary>
+        /// <param name="offerIndex">
+        /// El índice de la oferta de habilidad que el jugador está intentando comprar y para la cual se muestra el mensaje de reemplazo. Este índice se utiliza para identificar qué oferta específica se está intentando comprar dentro de la lista de ofertas activas en la tienda, lo que permite que el método sepa exactamente qué habilidad se está intentando aprender y pueda mostrar el mensaje de reemplazo con la información correcta. Es importante que este índice sea válido (es decir, que esté dentro del rango de la lista de ofertas activas) para evitar errores al acceder a la oferta correspondiente y para garantizar que el mensaje de reemplazo se muestre con la información correcta sobre la habilidad que se está intentando comprar.
+        /// </param>
+        /// <param name="skill">
+        /// La habilidad que el jugador está intentando comprar y para la cual se muestra el mensaje de reemplazo. Este objeto contiene toda la información relevante sobre la habilidad, como su nombre, descripción, efectos y cualquier otra información necesaria para mostrar en el mensaje de reemplazo y para que el jugador pueda tomar una decisión informada sobre qué habilidad reemplazar. Es importante que este objeto sea válido y que contenga la información correcta sobre la habilidad que se está intentando comprar para que el mensaje de reemplazo sea claro y útil para el jugador al momento de seleccionar una habilidad para reemplazar.
+        /// </param>
         private void ShowSkillReplacementPrompt(int offerIndex, Skill skill)
         {
             if (_player == null || skill == null || offerIndex < 0 || offerIndex >= _activeOffers.Count)
@@ -832,6 +1080,12 @@ namespace SpellsAndRooms.scripts.Turns
             }
         }
 
+        /// <summary>
+        /// Confirma la selección de una habilidad para reemplazar cuando el jugador está en el proceso de elegir una habilidad a reemplazar para aprender una nueva habilidad. Este método verifica que el jugador esté actualmente eligiendo una habilidad para reemplazar y que los índices y objetos involucrados sean válidos. Si la selección es válida, se realiza el reemplazo de la habilidad seleccionada por la nueva habilidad que se está intentando comprar, se actualiza el estado del jugador (por ejemplo, restando el oro y marcando la oferta como comprada) y se oculta el mensaje de reemplazo. Si la selección no es válida o si ocurre algún error durante el proceso, se cancela la selección y se oculta el mensaje sin realizar cambios en el estado del jugador. Este método es esencial para manejar la lógica de reemplazo de habilidades de manera coherente con las reglas del juego y para garantizar que las decisiones del jugador tengan un impacto real en su estado.
+        /// </summary>
+        /// <param name="skillIndex">
+        /// El índice de la habilidad actual del jugador que ha seleccionado para reemplazar por la nueva habilidad que está intentando comprar. Este índice se utiliza para identificar qué habilidad específica del jugador se va a reemplazar en caso de que la selección sea confirmada. Es importante que este índice sea válido (es decir, que esté dentro del rango de la lista de habilidades del jugador) para evitar errores al acceder a la habilidad correspondiente y para garantizar que el reemplazo se realice correctamente en el estado del jugador. Este parámetro se pasa desde los botones de selección en el mensaje de reemplazo, lo que permite que el método sepa exactamente qué habilidad se está intentando reemplazar.
+        /// </param>
         private void ConfirmSkillReplacement(int skillIndex)
         {
             if (!_isChoosingReplacement || _player == null || _pendingSkillToLearn == null)
@@ -870,7 +1124,10 @@ namespace SpellsAndRooms.scripts.Turns
             HideSkillReplacementPrompt();
             RefreshUi();
         }
-
+        
+        /// <summary>
+        /// Cancela el proceso de selección de una habilidad para reemplazar, ocultando el mensaje de reemplazo y restableciendo el estado relacionado con la selección. Este método se utiliza para manejar situaciones en las que el jugador decide cancelar la selección de una habilidad para reemplazar (por ejemplo, si se da cuenta de que no quiere comprar la nueva habilidad o si comete un error al seleccionar una habilidad para reemplazar). Al cancelar la selección, se oculta el mensaje de reemplazo, se restablecen las variables relacionadas con la selección pendiente y se actualiza el mensaje de estado en la tienda para reflejar que no se está eligiendo una habilidad para reemplazar. Este método es importante para proporcionar una forma de salir del proceso de selección de habilidades sin realizar cambios en el estado del jugador, lo que mejora la experiencia del usuario al permitirle corregir errores o reconsiderar sus decisiones.
+        /// </summary>
         private void CancelSkillReplacement()
         {
             if (!_isChoosingReplacement)
@@ -879,7 +1136,10 @@ namespace SpellsAndRooms.scripts.Turns
             HideSkillReplacementPrompt();
             _statusLabel.Text = DefaultStatusText;
         }
-
+        
+        /// <summary>
+        /// Oculta el mensaje de selección de habilidad para reemplazar y restablece el estado relacionado con la selección. Este método se utiliza para finalizar el proceso de selección de habilidades para reemplazar, ya sea después de que el jugador haya confirmado una selección válida o después de que haya cancelado la selección. Al ocultar el mensaje, se restablecen las variables relacionadas con la selección pendiente (como el índice de la oferta y la habilidad que se intentaba aprender) y se oculta el panel de reemplazo en la interfaz de usuario. Este método es esencial para garantizar que el estado del juego se mantenga coherente después de que el proceso de selección de habilidades para reemplazar haya concluido, evitando que queden variables pendientes o mensajes visibles que puedan causar confusión al jugador.
+        /// </summary>
         private void HideSkillReplacementPrompt()
         {
             _isChoosingReplacement = false;
@@ -889,7 +1149,13 @@ namespace SpellsAndRooms.scripts.Turns
             if (_replacementPanel != null)
                 _replacementPanel.Visible = false;
         }
-
+        
+        /// <summary>
+        /// Limpia todos los nodos hijos de un contenedor dado, eliminándolos de la escena. Este método se utiliza para limpiar dinámicamente el contenido de un contenedor en la interfaz de usuario, como el grid de selección de habilidades para reemplazar, antes de agregar nuevos elementos. Al llamar a QueueFree() en cada nodo hijo, se asegura que los nodos se eliminen correctamente de la escena y se liberen los recursos asociados. Es importante verificar que el contenedor no sea null antes de intentar acceder a sus hijos para evitar errores. Este método es fundamental para mantener la interfaz de usuario actualizada y libre de elementos obsoletos o duplicados durante el proceso de generación de ofertas y selección de habilidades en la tienda.
+        /// </summary>
+        /// <param name="container">
+        /// El contenedor cuyos nodos hijos se deben eliminar. Este parámetro se espera que sea un nodo de tipo Container (o una de sus subclases) que contenga los nodos que se desean limpiar. Es importante que este parámetro no sea null para evitar errores al intentar acceder a sus hijos. Al pasar el contenedor correcto, este método podrá eliminar todos los nodos hijos de manera efectiva, lo que es esencial para mantener la interfaz de usuario actualizada y libre de elementos obsoletos o duplicados durante el proceso de generación de ofertas y selección de habilidades en la tienda.
+        /// </param>
         private static void ClearContainer(Container container)
         {
             if (container == null)
@@ -898,7 +1164,10 @@ namespace SpellsAndRooms.scripts.Turns
             foreach (Node child in container.GetChildren())
                 child.QueueFree();
         }
-
+        
+        /// <summary>
+        /// Maneja la lógica cuando el jugador presiona el botón de cerrar la tienda, emitiendo una señal para indicar que la tienda se ha cerrado y luego eliminando la escena de la tienda de la memoria. Este método es fundamental para permitir que el jugador salga de la tienda y regrese al flujo normal del juego después de haber interactuado con las ofertas disponibles. Al emitir la señal "ShopClosed", otros nodos o sistemas en el juego pueden escuchar esta señal para realizar cualquier acción necesaria (como reactivar el control del jugador o actualizar el estado del juego) después de que la tienda se haya cerrado. Finalmente, al llamar a QueueFree(), se asegura que la escena de la tienda se elimine correctamente de la memoria, liberando los recursos asociados y evitando posibles fugas de memoria.
+        /// </summary>
         private void OnClosePressed()
         {
             EmitSignal(SignalName.ShopClosed);

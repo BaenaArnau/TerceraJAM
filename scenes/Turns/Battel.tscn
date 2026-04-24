@@ -2,13 +2,9 @@
 
 [ext_resource type="Script" uid="uid://dofua8tp3uc86" path="res://scripts/Turns/BattleScene.cs" id="1_0jc4l"]
 [ext_resource type="Texture2D" uid="uid://bsgot0t4hb3oi" path="res://assets/Turns/BattelBackground.png" id="2_0fy7g"]
-[ext_resource type="PackedScene" uid="uid://bmwkjh9nz6wn" path="res://scenes/Turns/Win.tscn" id="3_win"]
-[ext_resource type="PackedScene" uid="uid://d2xj81nrg4m" path="res://scenes/Turns/Lose.tscn" id="4_lose"]
 
 [node name="Battel" type="Node2D" unique_id=375188729]
 script = ExtResource("1_0jc4l")
-WinScenePacked = ExtResource("3_win")
-LoseScenePacked = ExtResource("4_lose")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=269365550]
 layer = -1

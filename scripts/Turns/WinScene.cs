@@ -15,6 +15,7 @@ namespace SpellsAndRooms.scripts.Turns
         private bool _uiBuilt;
 
         private Label _goldLabel;
+        private Label _totalGoldLabel;
         private Button _continueButton;
 
         public void StartWin(Player player, int earnedGold)
@@ -131,11 +132,12 @@ namespace SpellsAndRooms.scripts.Turns
             };
             goldCardLayout.AddChild(_goldLabel);
 
-            goldCardLayout.AddChild(new Label
+            _totalGoldLabel = new Label
             {
                 Text = $"Oro Total: {_player?.Gold ?? 0}",
                 HorizontalAlignment = HorizontalAlignment.Center
-            });
+            };
+            goldCardLayout.AddChild(_totalGoldLabel);
 
             layout.AddChild(new Control { CustomMinimumSize = new Vector2(0, 20) });
 
@@ -153,7 +155,9 @@ namespace SpellsAndRooms.scripts.Turns
             if (_player == null)
                 return;
 
-            _goldLabel.Text = $"+{_earnedGold}\nOro Total: {_player.Gold}";
+            _goldLabel.Text = $"+{_earnedGold}";
+            if (_totalGoldLabel != null)
+                _totalGoldLabel.Text = $"Oro Total: {_player.Gold}";
         }
 
         private void OnContinuePressed()
