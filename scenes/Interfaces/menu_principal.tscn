@@ -1,0 +1,148 @@
+[gd_scene format=3 uid="uid://bkjfllkri27iq"]
+
+[ext_resource type="Texture2D" uid="uid://b7ymx5nb888p3" path="res://assets/DungeonBackground.png" id="1_dnsbu"]
+[ext_resource type="Script" uid="uid://di3q8cq4sox2i" path="res://scripts/Interfaces/MenuPrincipal.cs" id="1_vi25f"]
+[ext_resource type="Texture2D" uid="uid://bj6vxcfruhnta" path="res://assets/FondoTitulo.png" id="2_vi25f"]
+[ext_resource type="FontFile" uid="uid://5lr8h01ai6yx" path="res://assets/font/upheaval/upheavtt.ttf" id="3_7nr1k"]
+[ext_resource type="Texture2D" uid="uid://ddx86cawwofrc" path="res://assets/Pergamino.png" id="4_rjtmp"]
+[ext_resource type="Theme" uid="uid://cspr6p2va4ryf" path="res://theme/Button_Theme.tres" id="6_vi25f"]
+[ext_resource type="PackedScene" uid="uid://csb3jibyjau2q" path="res://scenes/Interfaces/settings.tscn" id="7_vi25f"]
+
+[node name="MenuPrincipal" type="Control" unique_id=652643914 node_paths=PackedStringArray("_settings")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_vi25f")
+_settings = NodePath("Settings")
+
+[node name="Fondo" type="TextureRect" parent="." unique_id=2055654223]
+z_index = -1
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -777.0
+offset_top = -405.0
+offset_right = 759.0
+offset_bottom = 619.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_dnsbu")
+
+[node name="Pergamino" type="TextureRect" parent="." unique_id=1304561978]
+texture_filter = 1
+custom_minimum_size = Vector2(700, 650)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.0
+offset_top = -325.0
+offset_right = 350.0
+offset_bottom = 325.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_rjtmp")
+
+[node name="FondoTitulo" type="TextureRect" parent="Pergamino" unique_id=394929767]
+z_index = 1
+texture_filter = 1
+custom_minimum_size = Vector2(800, 200)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 47.0
+offset_right = 400.0
+offset_bottom = 247.0
+grow_horizontal = 2
+texture = ExtResource("2_vi25f")
+
+[node name="Label" type="Label" parent="Pergamino/FondoTitulo" unique_id=46162471]
+z_index = 1
+texture_filter = 1
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -322.5
+offset_top = -131.0
+offset_right = 322.5
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(2.4065375e-08, 0.25036317, 0.28748178, 1)
+theme_override_fonts/font = ExtResource("3_7nr1k")
+theme_override_font_sizes/font_size = 70
+text = "SPELLS AND ROOMS
+"
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1568762594]
+z_index = -1
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5803922)
+
+[node name="HBoxContainer" type="VBoxContainer" parent="." unique_id=1675854]
+texture_filter = 1
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -69.5
+offset_right = 150.0
+offset_bottom = 125.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="Start" type="Button" parent="HBoxContainer" unique_id=1319276902]
+texture_filter = 1
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("6_vi25f")
+theme_override_fonts/font = ExtResource("3_7nr1k")
+text = "START"
+
+[node name="Setting" type="Button" parent="HBoxContainer" unique_id=688248831]
+texture_filter = 1
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("6_vi25f")
+theme_override_fonts/font = ExtResource("3_7nr1k")
+theme_override_font_sizes/font_size = 32
+text = "SETTING"
+
+[node name="Exit" type="Button" parent="HBoxContainer" unique_id=621989983]
+texture_filter = 1
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("6_vi25f")
+text = "EXIT
+"
+
+[node name="Settings" parent="." unique_id=1413165098 instance=ExtResource("7_vi25f")]
+visible = false
+
+[connection signal="pressed" from="HBoxContainer/Start" to="." method="onStartPressed"]
+[connection signal="pressed" from="HBoxContainer/Setting" to="." method="onSettingPressed"]
+[connection signal="pressed" from="HBoxContainer/Exit" to="." method="onExitPressed"]

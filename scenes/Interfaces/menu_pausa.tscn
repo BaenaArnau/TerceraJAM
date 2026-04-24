@@ -1,0 +1,130 @@
+[gd_scene format=3 uid="uid://dxad8258k6vy2"]
+
+[ext_resource type="Texture2D" uid="uid://ddx86cawwofrc" path="res://assets/Pergamino.png" id="1_gehnc"]
+[ext_resource type="Script" uid="uid://dhov5s4o3coyn" path="res://scripts/Interfaces/MenuPausa.cs" id="1_im7n4"]
+[ext_resource type="Texture2D" uid="uid://bj6vxcfruhnta" path="res://assets/FondoTitulo.png" id="2_pwxya"]
+[ext_resource type="FontFile" uid="uid://5lr8h01ai6yx" path="res://assets/font/upheaval/upheavtt.ttf" id="3_je6uc"]
+[ext_resource type="Theme" uid="uid://cspr6p2va4ryf" path="res://theme/Button_Theme.tres" id="4_pwxya"]
+[ext_resource type="PackedScene" uid="uid://csb3jibyjau2q" path="res://scenes/Interfaces/settings.tscn" id="5_je6uc"]
+
+[node name="menu_pausa" type="CanvasLayer" unique_id=700777700 node_paths=PackedStringArray("_settings")]
+process_mode = 2
+script = ExtResource("1_im7n4")
+_settings = NodePath("Settings")
+
+[node name="Pergamino" type="TextureRect" parent="." unique_id=1983698291]
+texture_filter = 1
+custom_minimum_size = Vector2(700, 650)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.0
+offset_top = -250.0
+offset_right = 350.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_gehnc")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1042054934]
+z_index = -2
+custom_minimum_size = Vector2(500, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5803922)
+
+[node name="FondoTitulo" type="TextureRect" parent="." unique_id=1860857612]
+z_index = 1
+texture_filter = 1
+custom_minimum_size = Vector2(800, 200)
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 47.0
+offset_right = 400.0
+offset_bottom = 247.0
+grow_horizontal = 2
+texture = ExtResource("2_pwxya")
+
+[node name="Label" type="Label" parent="FondoTitulo" unique_id=1643316197]
+z_index = 1
+texture_filter = 1
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -121.0
+offset_top = -131.0
+offset_right = 179.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(2.4065375e-08, 0.25036317, 0.28748178, 1)
+theme_override_fonts/font = ExtResource("3_je6uc")
+theme_override_font_sizes/font_size = 70
+text = "PAUSED
+"
+
+[node name="HBoxContainer" type="VBoxContainer" parent="." unique_id=1196574295]
+texture_filter = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -69.5
+offset_right = 150.0
+offset_bottom = 125.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="Continue" type="Button" parent="HBoxContainer" unique_id=1939745510]
+layout_mode = 2
+theme = ExtResource("4_pwxya")
+text = "CONTINUE
+"
+
+[node name="Restart" type="Button" parent="HBoxContainer" unique_id=410678843]
+texture_filter = 1
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("4_pwxya")
+theme_override_fonts/font = ExtResource("3_je6uc")
+text = "RESTART
+"
+
+[node name="Setting" type="Button" parent="HBoxContainer" unique_id=1424762078]
+texture_filter = 1
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("4_pwxya")
+theme_override_fonts/font = ExtResource("3_je6uc")
+theme_override_font_sizes/font_size = 32
+text = "SETTING"
+
+[node name="Exit" type="Button" parent="HBoxContainer" unique_id=1517401313]
+texture_filter = 1
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("4_pwxya")
+text = "EXIT
+"
+
+[node name="Settings" parent="." unique_id=1413165098 instance=ExtResource("5_je6uc")]
+process_mode = 3
+visible = false
+
+[connection signal="pressed" from="HBoxContainer/Continue" to="." method="onContinuePressed"]
+[connection signal="pressed" from="HBoxContainer/Restart" to="." method="onRestartPressed"]
+[connection signal="pressed" from="HBoxContainer/Setting" to="." method="onSettingPressed"]
+[connection signal="pressed" from="HBoxContainer/Exit" to="." method="onExitPressed"]

@@ -1,0 +1,160 @@
+[gd_scene format=3 uid="uid://csb3jibyjau2q"]
+
+[ext_resource type="Texture2D" uid="uid://ddx86cawwofrc" path="res://assets/Pergamino.png" id="1_2oqtj"]
+[ext_resource type="Script" uid="uid://dushisup3u67q" path="res://scripts/Interfaces/Settings.cs" id="1_kkycx"]
+[ext_resource type="Theme" uid="uid://d23s4g38gifyk" path="res://theme/SettingsTabContainer_Theme.tres" id="2_i6wng"]
+[ext_resource type="Theme" uid="uid://cspr6p2va4ryf" path="res://theme/Button_Theme.tres" id="3_4ts72"]
+[ext_resource type="Texture2D" uid="uid://bj6vxcfruhnta" path="res://assets/FondoTitulo.png" id="5_r22wt"]
+[ext_resource type="FontFile" uid="uid://5lr8h01ai6yx" path="res://assets/font/upheaval/upheavtt.ttf" id="6_qevgg"]
+
+[node name="Settings" type="CanvasLayer" unique_id=1413165098]
+script = ExtResource("1_kkycx")
+
+[node name="Pergamino" type="TextureRect" parent="." unique_id=120368301]
+texture_filter = 1
+custom_minimum_size = Vector2(700, 650)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.0
+offset_top = -250.0
+offset_right = 350.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_2oqtj")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=173858953]
+custom_minimum_size = Vector2(700, 650)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.0
+offset_top = -163.5
+offset_right = 350.0
+offset_bottom = 163.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 130
+theme_override_constants/margin_top = 220
+theme_override_constants/margin_right = 130
+theme_override_constants/margin_bottom = 100
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=643380598]
+layout_mode = 2
+
+[node name="TabContainer" type="TabContainer" parent="MarginContainer/VBoxContainer" unique_id=1839170637]
+texture_filter = 1
+layout_mode = 2
+size_flags_vertical = 3
+theme = ExtResource("2_i6wng")
+theme_override_font_sizes/font_size = 24
+current_tab = 0
+
+[node name="General" type="MarginContainer" parent="MarginContainer/VBoxContainer/TabContainer" unique_id=1818679207]
+texture_filter = 1
+layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+metadata/_tab_index = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/General" unique_id=222052627]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/General/VBoxContainer" unique_id=2041589748]
+layout_mode = 2
+text = "texto de  prueba"
+
+[node name="Pantalla" type="MarginContainer" parent="MarginContainer/VBoxContainer/TabContainer" unique_id=1550258262]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+metadata/_tab_index = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Pantalla" unique_id=1333372699]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/Pantalla/VBoxContainer" unique_id=689626845]
+layout_mode = 2
+text = "texto de  prueba pantalla"
+
+[node name="Sonido" type="MarginContainer" parent="MarginContainer/VBoxContainer/TabContainer" unique_id=1550812141]
+visible = false
+layout_mode = 2
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+metadata/_tab_index = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/Sonido" unique_id=689351514]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/Sonido/VBoxContainer" unique_id=2139200719]
+layout_mode = 2
+text = "texto de  prueba sonido"
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer" unique_id=1044271837]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/MarginContainer" unique_id=349046472]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 50
+
+[node name="Volver" type="Button" parent="MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=706203482]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme = ExtResource("3_4ts72")
+text = "VOLVER
+"
+
+[node name="Aplicar" type="Button" parent="MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=1128239358]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme = ExtResource("3_4ts72")
+text = "APLICAR"
+
+[node name="FondoTitulo" type="TextureRect" parent="." unique_id=733636984]
+z_index = 1
+texture_filter = 1
+custom_minimum_size = Vector2(800, 200)
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 47.0
+offset_right = 400.0
+offset_bottom = 247.0
+grow_horizontal = 2
+texture = ExtResource("5_r22wt")
+
+[node name="Label" type="Label" parent="FondoTitulo" unique_id=542484131]
+z_index = 1
+texture_filter = 1
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -150.0
+offset_top = -131.0
+offset_right = 150.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(2.4065375e-08, 0.25036317, 0.28748178, 1)
+theme_override_fonts/font = ExtResource("6_qevgg")
+theme_override_font_sizes/font_size = 70
+text = "SETTING
+"
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/Volver" to="." method="onVolverPressed"]

@@ -1,0 +1,43 @@
+[gd_resource type="Theme" format=3 uid="uid://d23s4g38gifyk"]
+
+[ext_resource type="FontFile" uid="uid://5lr8h01ai6yx" path="res://assets/font/upheaval/upheavtt.ttf" id="1_eh1st"]
+[ext_resource type="Texture2D" uid="uid://b5evqxvketta0" path="res://assets/icons/ButtonStyle.png" id="1_kre7a"]
+[ext_resource type="Texture2D" uid="uid://bj6vxcfruhnta" path="res://assets/FondoTitulo.png" id="2_utgdt"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_awvkd"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_erb3c"]
+texture = ExtResource("1_kre7a")
+texture_margin_left = 5.0
+texture_margin_right = 5.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_20axr"]
+texture = ExtResource("2_utgdt")
+texture_margin_top = 5.0
+texture_margin_bottom = 5.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_kre7a"]
+texture = ExtResource("2_utgdt")
+texture_margin_left = 10.0
+texture_margin_right = 5.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_8xgy6"]
+texture = ExtResource("2_utgdt")
+texture_margin_left = 10.0
+texture_margin_right = 10.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_rygba"]
+texture = ExtResource("1_kre7a")
+texture_margin_left = 10.0
+texture_margin_top = 15.0
+texture_margin_right = 10.0
+texture_margin_bottom = 15.0
+
+[resource]
+default_font = ExtResource("1_eh1st")
+TabContainer/styles/panel = SubResource("StyleBoxEmpty_awvkd")
+TabContainer/styles/tab_disabled = SubResource("StyleBoxTexture_erb3c")
+TabContainer/styles/tab_focus = SubResource("StyleBoxTexture_20axr")
+TabContainer/styles/tab_hovered = SubResource("StyleBoxTexture_kre7a")
+TabContainer/styles/tab_selected = SubResource("StyleBoxTexture_8xgy6")
+TabContainer/styles/tab_unselected = SubResource("StyleBoxTexture_rygba")
