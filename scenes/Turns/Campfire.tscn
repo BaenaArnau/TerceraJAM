@@ -1,3 +1,6 @@
 [gd_scene format=3 uid="uid://cp53kqrvqjjns"]
 
+[ext_resource type="Script" path="res://scripts/Turns/CampfireScene.cs" id="1_xh125"]
+
 [node name="Campfire" type="Node" unique_id=1850744369]
+script = ExtResource("1_xh125")

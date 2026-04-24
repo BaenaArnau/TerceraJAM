@@ -1,3 +1,6 @@
 [gd_scene format=3 uid="uid://6ho3n8ykn1r"]
 
+[ext_resource type="Script" uid="uid://c5g4klihr2r4" path="res://scripts/Turns/TreasureScene.cs" id="1_0l3wv"]
+
 [node name="Tresure" type="Node" unique_id=148785480]
+script = ExtResource("1_0l3wv")

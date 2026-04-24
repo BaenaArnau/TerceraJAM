@@ -22,6 +22,12 @@ namespace SpellsAndRooms.scripts.Turns
             ["blackthing"] = "res://scenes/Characters/Enemy/BlackThing.tscn"
         };
 
+        private static readonly HashSet<string> BossEnemiesByName = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "black thing",
+            "blackthing"
+        };
+
         public IReadOnlyList<EnemyTemplate> Templates => _templates;
 
         public EnemyDatabase(SkillDatabase skillDatabase)
@@ -122,6 +128,7 @@ namespace SpellsAndRooms.scripts.Turns
                     Name = string.IsNullOrWhiteSpace(probe.CharacterName) ? name : probe.CharacterName,
                     ScenePath = scenePath,
                     Scene = packedScene,
+                    IsBoss = IsBossEnemy(name, scenePath),
                     Difficulty = Mathf.Max(1, probe.Difficulty),
                     Loot = Mathf.Max(0, probe.MoneyLoot),
                     Skills = skills.ToArray()
@@ -140,6 +147,16 @@ namespace SpellsAndRooms.scripts.Turns
         private static string Normalize(string value)
         {
             return (value ?? string.Empty).Trim();
+        }
+
+        private static bool IsBossEnemy(string enemyName, string scenePath)
+        {
+            string normalizedName = Normalize(enemyName);
+            if (BossEnemiesByName.Contains(normalizedName))
+                return true;
+
+            return !string.IsNullOrWhiteSpace(scenePath)
+                && scenePath.IndexOf("BlackThing", StringComparison.OrdinalIgnoreCase) >= 0;
         }
     }
 }

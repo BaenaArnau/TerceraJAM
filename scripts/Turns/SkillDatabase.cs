@@ -8,10 +8,19 @@ namespace SpellsAndRooms.scripts.Turns
 {
     public sealed class SkillDatabase
     {
+        public sealed class SkillDefinition
+        {
+            public string Name { get; init; } = "Skill";
+            public string Description { get; init; } = string.Empty;
+            public int Price { get; init; } = 0;
+        }
+
         private readonly Dictionary<string, Skill> _skills = new Dictionary<string, Skill>(StringComparer.OrdinalIgnoreCase);
+        private readonly List<SkillDefinition> _skillDefinitions = new List<SkillDefinition>();
         private const string SkillCsvPath = "res://Files/Skill.csv";
 
         public IReadOnlyDictionary<string, Skill> Skills => _skills;
+        public IReadOnlyList<SkillDefinition> SkillDefinitions => _skillDefinitions;
 
         public SkillDatabase()
         {
@@ -92,6 +101,13 @@ namespace SpellsAndRooms.scripts.Turns
                     damageType,
                     multiHit,
                     isHealing);
+
+                _skillDefinitions.Add(new SkillDefinition
+                {
+                    Name = name,
+                    Description = cols.Count > 5 ? cols[5].Trim() : string.Empty,
+                    Price = cols.Count > 6 ? ParseInt(cols[6], 0) : 0
+                });
             }
         }
 

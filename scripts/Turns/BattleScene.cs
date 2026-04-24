@@ -2,6 +2,7 @@ using Godot;
 using System.Collections.Generic;
 using System.Linq;
 using SpellsAndRooms.scripts.Characters;
+using SpellsAndRooms.scripts.Items;
 
 namespace SpellsAndRooms.scripts.Turns
 {
@@ -9,7 +10,12 @@ namespace SpellsAndRooms.scripts.Turns
     {
         [Signal] public delegate void BattleFinishedEventHandler(bool playerWon, int earnedGold);
 
+        [Export] public PackedScene WinScenePacked;
+        [Export] public PackedScene LoseScenePacked;
+
         private const string BattleBackgroundPath = "res://assets/Turns/BattelBackground.png";
+        private const string WinScenePath = "res://scenes/Turns/Win.tscn";
+        private const string LoseScenePath = "res://scenes/Turns/Lose.tscn";
 
         private readonly BattleController _battleController = new BattleController();
         private Player _player;
@@ -94,7 +100,6 @@ namespace SpellsAndRooms.scripts.Turns
             // Background en su propia CanvasLayer (Layer -1) para estar al frente del mapa
             _backgroundLayer = new CanvasLayer { Name = "BackgroundLayer", Layer = -1 };
             AddChild(_backgroundLayer);
-            GD.Print("[BattleScene] BackgroundLayer created with Layer = -1");
 
             _background = new TextureRect
             {
@@ -109,21 +114,17 @@ namespace SpellsAndRooms.scripts.Turns
             _background.AnchorRight = 1;
             _background.AnchorBottom = 1;
             _backgroundLayer.AddChild(_background);
-            GD.Print("[BattleScene] BattleBackground added to BackgroundLayer");
+
+            // UI en CanvasLayer Layer 2 (para estar sobre battlefield pero bajo win/lose)
+            _uiLayer = new CanvasLayer { Name = "UiLayer", Layer = 2 };
+            AddChild(_uiLayer);
 
             // Sprites de combatientes en CanvasLayer Layer 0
             _battleFieldLayer = new CanvasLayer { Name = "BattleFieldLayer", Layer = 0 };
             AddChild(_battleFieldLayer);
-            GD.Print("[BattleScene] BattleFieldLayer created with Layer = 0");
 
             _battleField = new Node2D { Name = "BattleField" };
             _battleFieldLayer.AddChild(_battleField);
-            GD.Print($"[BattleScene] BattleField created and added to BattleFieldLayer. Position: {_battleField.Position}");
-
-            // UI en CanvasLayer Layer 1
-            _uiLayer = new CanvasLayer { Name = "UiLayer", Layer = 1 };
-            AddChild(_uiLayer);
-            GD.Print("[BattleScene] UiLayer created with Layer = 1");
 
             _uiRoot = new Control
             {
@@ -169,6 +170,7 @@ namespace SpellsAndRooms.scripts.Turns
                 CustomMinimumSize = new Vector2(260, 0),
                 SizeFlagsVertical = Control.SizeFlags.ExpandFill
             };
+            playerPanel.AddThemeStyleboxOverride("panel", CreatePlayerPanelStyle());
             topRow.AddChild(playerPanel);
 
             var playerLayout = new VBoxContainer
@@ -210,6 +212,7 @@ namespace SpellsAndRooms.scripts.Turns
                 SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
                 SizeFlagsVertical = Control.SizeFlags.ExpandFill
             };
+            middlePanel.AddThemeStyleboxOverride("panel", CreateMiddlePanelStyle());
             topRow.AddChild(middlePanel);
 
             var middleLayout = new VBoxContainer
@@ -246,6 +249,7 @@ namespace SpellsAndRooms.scripts.Turns
                 CustomMinimumSize = new Vector2(330, 0),
                 SizeFlagsVertical = Control.SizeFlags.ExpandFill
             };
+            rightPanel.AddThemeStyleboxOverride("panel", CreateRightPanelStyle());
             topRow.AddChild(rightPanel);
 
             var rightLayout = new VBoxContainer
@@ -469,7 +473,8 @@ namespace SpellsAndRooms.scripts.Turns
             _commandGrid.AddChild(_magicButton);
 
             _itemButton = CreateMenuButton("Objeto");
-            _itemButton.Disabled = true;
+            _itemButton.Disabled = _player == null || _player.Consumables.Count == 0;
+            _itemButton.Pressed += ShowItemMenu;
             _commandGrid.AddChild(_itemButton);
 
             _defendButton = CreateMenuButton("Defensa");
@@ -498,6 +503,37 @@ namespace SpellsAndRooms.scripts.Turns
                 skillButton.Disabled = _player.Mana < skill.ManaCost;
                 skillButton.Pressed += () => OnSkillPressed(skill);
                 _skillGrid.AddChild(skillButton);
+            }
+        }
+
+        private void ShowItemMenu()
+        {
+            if (_player == null || _itemGrid == null)
+                return;
+
+            ClearChildren(_itemGrid);
+            _commandGrid.Visible = true;
+            _skillGrid.Visible = false;
+            _targetGrid.Visible = false;
+            _itemGrid.Visible = true;
+            _itemGrid.Columns = 2;
+
+            if (_player.Consumables.Count == 0)
+            {
+                AddLog("No tienes consumibles.");
+                return;
+            }
+
+            for (int i = 0; i < _player.Consumables.Count; i++)
+            {
+                int itemIndex = i;
+                ConsumableItem item = _player.Consumables[itemIndex];
+                if (item == null)
+                    continue;
+
+                Button itemButton = CreateMenuButton($"{item.ItemName}\n{item.Subtype} ({item.Potency})");
+                itemButton.Pressed += () => OnItemPressed(itemIndex);
+                _itemGrid.AddChild(itemButton);
             }
         }
 
@@ -562,6 +598,23 @@ namespace SpellsAndRooms.scripts.Turns
             _pendingSkill = null;
             AddLog(log);
             FinishPlayerAction();
+        }
+
+        private void OnItemPressed(int itemIndex)
+        {
+            if (_battleEnded || _player == null)
+                return;
+
+            if (_player.TryUseConsumable(itemIndex, out string log))
+            {
+                AddLog(log);
+                FinishPlayerAction();
+                return;
+            }
+
+            AddLog(log);
+            RefreshUi();
+            ShowItemMenu();
         }
 
         private void FinishPlayerAction()
@@ -633,9 +686,83 @@ namespace SpellsAndRooms.scripts.Turns
                 : "Derrota. El equipo ha caido.");
 
             DetachCombatants();
-            EmitSignal(SignalName.BattleFinished, result.PlayerWon, result.EarnedGold);
-            QueueFree();
+
+            if (result.PlayerWon)
+                ShowWinScene(result.EarnedGold);
+            else
+                ShowLoseScene();
+
             return true;
+        }
+
+        private void ShowWinScene(int earnedGold)
+        {
+            if (WinScenePacked == null)
+            {
+                WinScenePacked = ResourceLoader.Load<PackedScene>(WinScenePath);
+                if (WinScenePacked == null)
+                {
+                    GD.PrintErr($"No se pudo cargar la escena de victoria en '{WinScenePath}'.");
+                    EmitSignal(SignalName.BattleFinished, true, earnedGold);
+                    QueueFree();
+                    return;
+                }
+            }
+
+            Node winInstance = WinScenePacked.Instantiate();
+            if (winInstance is not WinScene winScene)
+            {
+                GD.PrintErr("La escena de victoria no usa WinScene.cs.");
+                winInstance.QueueFree();
+                EmitSignal(SignalName.BattleFinished, true, earnedGold);
+                QueueFree();
+                return;
+            }
+
+            AddChild(winScene);
+            winScene.StartWin(_player, earnedGold);
+            winScene.WinClosed += () => OnWinClosed(earnedGold);
+        }
+
+        private void ShowLoseScene()
+        {
+            if (LoseScenePacked == null)
+            {
+                LoseScenePacked = ResourceLoader.Load<PackedScene>(LoseScenePath);
+                if (LoseScenePacked == null)
+                {
+                    GD.PrintErr($"No se pudo cargar la escena de derrota en '{LoseScenePath}'.");
+                    EmitSignal(SignalName.BattleFinished, false, 0);
+                    QueueFree();
+                    return;
+                }
+            }
+
+            Node loseInstance = LoseScenePacked.Instantiate();
+            if (loseInstance is not LoseScene loseScene)
+            {
+                GD.PrintErr("La escena de derrota no usa LoseScene.cs.");
+                loseInstance.QueueFree();
+                EmitSignal(SignalName.BattleFinished, false, 0);
+                QueueFree();
+                return;
+            }
+
+            AddChild(loseScene);
+            loseScene.StartLose(_player);
+            loseScene.LoseClosed += OnLoseClosed;
+        }
+
+        private void OnWinClosed(int earnedGold)
+        {
+            EmitSignal(SignalName.BattleFinished, true, earnedGold);
+            QueueFree();
+        }
+
+        private void OnLoseClosed()
+        {
+            EmitSignal(SignalName.BattleFinished, false, 0);
+            QueueFree();
         }
 
         private void DetachCombatants()
@@ -781,6 +908,69 @@ namespace SpellsAndRooms.scripts.Turns
                 CustomMinimumSize = new Vector2(110, 58),
                 SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
                 SizeFlagsVertical = Control.SizeFlags.Fill
+            };
+        }
+
+        private static StyleBoxFlat CreatePlayerPanelStyle()
+        {
+            return new StyleBoxFlat
+            {
+                BgColor = new Color(0.08f, 0.08f, 0.10f, 0.85f),
+                BorderColor = new Color(0.6f, 0.7f, 0.8f, 1.0f),
+                BorderWidthLeft = 2,
+                BorderWidthTop = 2,
+                BorderWidthRight = 2,
+                BorderWidthBottom = 2,
+                CornerRadiusTopLeft = 8,
+                CornerRadiusTopRight = 8,
+                CornerRadiusBottomLeft = 8,
+                CornerRadiusBottomRight = 8,
+                ContentMarginLeft = 10,
+                ContentMarginTop = 10,
+                ContentMarginRight = 10,
+                ContentMarginBottom = 10
+            };
+        }
+
+        private static StyleBoxFlat CreateMiddlePanelStyle()
+        {
+            return new StyleBoxFlat
+            {
+                BgColor = new Color(0.10f, 0.08f, 0.08f, 0.85f),
+                BorderColor = new Color(0.8f, 0.6f, 0.6f, 1.0f),
+                BorderWidthLeft = 2,
+                BorderWidthTop = 2,
+                BorderWidthRight = 2,
+                BorderWidthBottom = 2,
+                CornerRadiusTopLeft = 8,
+                CornerRadiusTopRight = 8,
+                CornerRadiusBottomLeft = 8,
+                CornerRadiusBottomRight = 8,
+                ContentMarginLeft = 10,
+                ContentMarginTop = 10,
+                ContentMarginRight = 10,
+                ContentMarginBottom = 10
+            };
+        }
+
+        private static StyleBoxFlat CreateRightPanelStyle()
+        {
+            return new StyleBoxFlat
+            {
+                BgColor = new Color(0.08f, 0.10f, 0.08f, 0.85f),
+                BorderColor = new Color(0.6f, 0.8f, 0.6f, 1.0f),
+                BorderWidthLeft = 2,
+                BorderWidthTop = 2,
+                BorderWidthRight = 2,
+                BorderWidthBottom = 2,
+                CornerRadiusTopLeft = 8,
+                CornerRadiusTopRight = 8,
+                CornerRadiusBottomLeft = 8,
+                CornerRadiusBottomRight = 8,
+                ContentMarginLeft = 10,
+                ContentMarginTop = 10,
+                ContentMarginRight = 10,
+                ContentMarginBottom = 10
             };
         }
     }

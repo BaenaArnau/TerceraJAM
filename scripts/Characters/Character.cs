@@ -70,7 +70,7 @@ namespace SpellsAndRooms.scripts.Characters
 				return;
 
 			if (_skills.Count >= 4)
-				_skills.RemoveAt(0);
+				return;
 
 			_skills.Add(skill);
 		}

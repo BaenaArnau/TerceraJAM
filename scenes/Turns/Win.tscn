@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://bmwkjian06wn"]
+
+[ext_resource type="Script" path="res://scripts/Turns/WinScene.cs" id="1_win"]
+
+[node name="Win" type="Node" unique_id=1850744369]
+script = ExtResource("1_win")
+

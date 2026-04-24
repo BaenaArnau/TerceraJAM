@@ -11,6 +11,8 @@ namespace SpellsAndRooms.scripts.map
         [Export] public PackedScene MapRoomScene;
         [Export] public PackedScene MapLineScene;
         [Export] public PackedScene BattleScenePacked;
+        [Export] public PackedScene CampfireScenePacked;
+        [Export] public PackedScene TreasureScenePacked;
         [Export(PropertyHint.Range, "1.0,3.0,0.05")] public float MapZoom = 1.7f;
         [Export] public float ScrollStep = 80.0f;
         [Export] public float ScrollSmoothness = 10.0f;
@@ -37,6 +39,8 @@ namespace SpellsAndRooms.scripts.map
         private const string PlayerScenePath = "res://scenes/Characters/Player/Oathbreakers.tscn";
         private const string BattleScenePath = "res://scenes/Turns/Battel.tscn";
         private const string LegacyBattleScenePath = "res://scripts/Turns/Battel.tscn";
+        private const string CampfireScenePath = "res://scenes/Turns/Campfire.tscn";
+        private const string TreasureScenePath = "res://scenes/Turns/Tresure.tscn";
 
         public override void _Ready()
         {
@@ -60,6 +64,20 @@ namespace SpellsAndRooms.scripts.map
 
                 if (BattleScenePacked == null)
                     GD.PrintErr($"No se pudo cargar la escena de batalla en '{BattleScenePath}' ni en '{LegacyBattleScenePath}'.");
+            }
+
+            if (CampfireScenePacked == null)
+            {
+                CampfireScenePacked = ResourceLoader.Load<PackedScene>(CampfireScenePath);
+                if (CampfireScenePacked == null)
+                    GD.PrintErr($"No se pudo cargar la escena de fogata en '{CampfireScenePath}'.");
+            }
+
+            if (TreasureScenePacked == null)
+            {
+                TreasureScenePacked = ResourceLoader.Load<PackedScene>(TreasureScenePath);
+                if (TreasureScenePacked == null)
+                    GD.PrintErr($"No se pudo cargar la escena de tesoro en '{TreasureScenePath}'.");
             }
 
             if (_visualsContainer != null)
@@ -459,16 +477,32 @@ namespace SpellsAndRooms.scripts.map
             }
 
             GD.Print("[Map] Iniciando escena de fogata...");
-            
+
             // Ocultar el mapa mientras está en la fogata
             if (_visualsContainer != null)
             {
                 _visualsContainer.Visible = false;
             }
 
-            // Aquí se instanciaría la escena de fogata
-            // Por ahora, solo avanzamos la ruta
-            CallDeferred(nameof(OnCampfireClosed), selectedRoom);
+            if (CampfireScenePacked == null)
+            {
+                GD.PrintErr("No hay escena de fogata asignada.");
+                OnCampfireClosed(selectedRoom);
+                return;
+            }
+
+            Node campfireInstance = CampfireScenePacked.Instantiate();
+            if (campfireInstance is not CampfireScene campfireScene)
+            {
+                GD.PrintErr("La escena de fogata no usa CampfireScene.cs.");
+                campfireInstance.QueueFree();
+                OnCampfireClosed(selectedRoom);
+                return;
+            }
+
+            AddChild(campfireScene);
+            campfireScene.StartCampfire(_player);
+            campfireScene.CampfireClosed += () => OnCampfireClosed(selectedRoom);
         }
 
         private void OnCampfireClosed(Room selectedRoom)
@@ -498,9 +532,25 @@ namespace SpellsAndRooms.scripts.map
                 _visualsContainer.Visible = false;
             }
 
-            // Aquí se instanciaría la escena de tesoro
-            // Por ahora, solo avanzamos la ruta
-            CallDeferred(nameof(OnTreasureClosed), selectedRoom);
+            if (TreasureScenePacked == null)
+            {
+                GD.PrintErr("No hay escena de tesoro asignada.");
+                OnTreasureClosed(selectedRoom);
+                return;
+            }
+
+            Node treasureInstance = TreasureScenePacked.Instantiate();
+            if (treasureInstance is not TreasureScene treasureScene)
+            {
+                GD.PrintErr("La escena de tesoro no usa TreasureScene.cs.");
+                treasureInstance.QueueFree();
+                OnTreasureClosed(selectedRoom);
+                return;
+            }
+
+            AddChild(treasureScene);
+            treasureScene.StartTreasure(_player);
+            treasureScene.TreasureClosed += () => OnTreasureClosed(selectedRoom);
         }
 
         private void OnTreasureClosed(Room selectedRoom)

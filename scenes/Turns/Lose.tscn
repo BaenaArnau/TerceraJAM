@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://d2xj81nrg4m"]
+
+[ext_resource type="Script" path="res://scripts/Turns/LoseScene.cs" id="1_lose"]
+
+[node name="Lose" type="Node" unique_id=1850744370]
+script = ExtResource("1_lose")
+

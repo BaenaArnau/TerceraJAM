@@ -16,7 +16,8 @@ namespace SpellsAndRooms.scripts.Turns
             if (player == null || target == null || !target.IsAlive)
                 return "Objetivo invalido.";
 
-            int applied = target.CalculateAdjustedDamage(player.Damage, Character.DamageType.Physical);
+            int outgoing = player.ModifyOutgoingDamage(player.Damage);
+            int applied = target.CalculateAdjustedDamage(outgoing, Character.DamageType.Physical);
             target.TakeDamage(applied);
             return $"{player.CharacterName} ataca a {target.CharacterName} por {applied} (vida restante: {target.Health}).";
         }
@@ -40,7 +41,8 @@ namespace SpellsAndRooms.scripts.Turns
                 var logs = new List<string>();
                 foreach (Enemy enemy in enemies.Where(e => e != null && e.IsAlive))
                 {
-                    int applied = enemy.CalculateAdjustedDamage(skill.Damage + player.Damage / 2, skill.DamageType);
+                    int outgoing = player.ModifyOutgoingDamage(skill.Damage + player.Damage / 2);
+                    int applied = enemy.CalculateAdjustedDamage(outgoing, skill.DamageType);
                     enemy.TakeDamage(applied);
                     logs.Add($"{player.CharacterName} usa {skill.Name} sobre {enemy.CharacterName}: {applied} dano. Vida objetivo: {enemy.Health}.");
                 }
@@ -51,7 +53,7 @@ namespace SpellsAndRooms.scripts.Turns
             if (target == null || !target.IsAlive)
                 return "No hay objetivo valido para la habilidad.";
 
-            return ApplySkill(player, target, skill);
+            return ApplySkill(player, target, skill, sourceIsPlayer: true);
         }
 
         public List<string> ExecuteEnemyTurn(List<Enemy> enemies, Player player)
@@ -77,6 +79,7 @@ namespace SpellsAndRooms.scripts.Turns
                 }
 
                 int applied = player.CalculateAdjustedDamage(enemy.Damage, Character.DamageType.Physical);
+                applied = player.ModifyIncomingDamage(applied);
                 player.TakeDamage(applied);
                 logs.Add($"{enemy.CharacterName} golpea a {player.CharacterName} por {applied} (vida restante: {player.Health}).");
             }
@@ -158,18 +161,20 @@ namespace SpellsAndRooms.scripts.Turns
                     log.Add($"{player.CharacterName} usa {chosenSkill.Name} contra todos los enemigos.");
                     foreach (Enemy enemy in enemies.Where(e => e.IsAlive))
                     {
-                        int areaDamage = enemy.CalculateAdjustedDamage(chosenSkill.Damage + player.Damage / 2, chosenSkill.DamageType);
+                        int rawDamage = player.ModifyOutgoingDamage(chosenSkill.Damage + player.Damage / 2);
+                        int areaDamage = enemy.CalculateAdjustedDamage(rawDamage, chosenSkill.DamageType);
                         enemy.TakeDamage(areaDamage);
                         log.Add($"  -> {enemy.CharacterName} recibe {areaDamage} dano (vida restante: {enemy.Health}).");
                     }
                 }
                 else
-                    log.Add(ApplySkill(player, target, chosenSkill));
+                    log.Add(ApplySkill(player, target, chosenSkill, sourceIsPlayer: true));
 
                 return;
             }
 
-            int applied = target.CalculateAdjustedDamage(player.Damage, Character.DamageType.Physical);
+            int outgoing = player.ModifyOutgoingDamage(player.Damage);
+            int applied = target.CalculateAdjustedDamage(outgoing, Character.DamageType.Physical);
             target.TakeDamage(applied);
             log.Add($"{player.CharacterName} ataca a {target.CharacterName} por {applied} (vida restante: {target.Health}).");
         }
@@ -190,7 +195,7 @@ namespace SpellsAndRooms.scripts.Turns
             return $"{enemy.CharacterName} usa {skill.Name} y se cura {skill.Damage} (vida: {enemy.Health}).";
         }
 
-        private static string ApplySkill(Character source, Character target, Skill skill)
+        private static string ApplySkill(Character source, Character target, Skill skill, bool sourceIsPlayer = false)
         {
             if (skill.IsHealing)
             {
@@ -198,7 +203,14 @@ namespace SpellsAndRooms.scripts.Turns
                 return $"{source.CharacterName} usa {skill.Name} y se cura {skill.Damage} (vida: {source.Health}).";
             }
 
-            int applied = target.CalculateAdjustedDamage(skill.Damage + source.Damage / 2, skill.DamageType);
+            int rawDamage = skill.Damage + source.Damage / 2;
+            if (sourceIsPlayer && source is Player playerSource)
+                rawDamage = playerSource.ModifyOutgoingDamage(rawDamage);
+
+            int applied = target.CalculateAdjustedDamage(rawDamage, skill.DamageType);
+            if (target is Player playerTarget)
+                applied = playerTarget.ModifyIncomingDamage(applied);
+
             target.TakeDamage(applied);
 
             string affinityText = "normal";
