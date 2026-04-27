@@ -371,7 +371,7 @@ namespace SpellsAndRooms.scripts.Turns
             var buyButton = new Button
             {
                 Text = offer.Purchased ? "Comprado" : $"Comprar ({offer.Price} oro)",
-                Disabled = offer.Purchased || !_player.CanAfford(offer.Price),
+                Disabled = offer.Purchased,
                 CustomMinimumSize = new Vector2(0, 42)
             };
 

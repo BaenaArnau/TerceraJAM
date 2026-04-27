@@ -15,7 +15,7 @@ namespace SpellsAndRooms.scripts.map
         [Export] public PackedScene ShopScenePacked;
         [Export] public PackedScene CampfireScenePacked;
         [Export] public PackedScene TreasureScenePacked;
-        [Export] public string SelectedPlayerScenePath = "res://scenes/Characters/Player/Oathbreakers.tscn";
+        public static string SelectedPlayerScenePath = "res://scenes/Characters/Player/Oathbreakers.tscn";
         [Export] private CanvasLayer _menuPausa;
         [Export(PropertyHint.Range, "1.0,3.0,0.05")] public float MapZoom = 1.7f;
         [Export] public float ScrollStep = 80.0f;
@@ -822,7 +822,7 @@ namespace SpellsAndRooms.scripts.map
             GetViewport().SetInputAsHandled();
         }
 
-        public void SetSelectedPlayerScenePath(string scenePath)
+        public static void SetSelectedPlayerScenePath(string scenePath)
         {
             SelectedPlayerScenePath = string.IsNullOrWhiteSpace(scenePath)
                 ? DefaultPlayerScenePath

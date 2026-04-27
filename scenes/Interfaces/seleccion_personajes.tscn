@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://dpxsqadksniue"]
+[gd_scene format=3 uid="uid://csc036mg64ghl"]
 
 [ext_resource type="Texture2D" uid="uid://ddx86cawwofrc" path="res://assets/icons/Pergamino.png" id="1_3wnwp"]
 [ext_resource type="Script" uid="uid://de5bob441bmjn" path="res://scripts/Interfaces/SeleccionPersonajes.cs" id="1_h47sb"]
@@ -11,11 +11,37 @@
 [ext_resource type="Texture2D" uid="uid://bxk1af1oy5kh3" path="res://assets/icons/MarcoMagoSelect.png" id="9_pbnf7"]
 [ext_resource type="Texture2D" uid="uid://livbfibiswin" path="res://assets/icons/MarcoMagoNormalDis.png" id="10_yqc31"]
 [ext_resource type="Theme" uid="uid://cspr6p2va4ryf" path="res://theme/Button_Theme.tres" id="11_pbnf7"]
+[ext_resource type="Texture2D" uid="uid://b7ymx5nb888p3" path="res://assets/Map/DungeonBackground.png" id="12_ftqje"]
 
 [node name="SeleccionPersonajes" type="CanvasLayer" unique_id=2126597733 node_paths=PackedStringArray("_caballeroButton", "_magoButton")]
 script = ExtResource("1_h47sb")
 _caballeroButton = NodePath("Personajes/Personajes/Caballero")
 _magoButton = NodePath("Personajes/Personajes/Mago")
+
+[node name="Fondo" type="TextureRect" parent="." unique_id=534999201]
+z_index = -1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -777.0
+offset_top = -405.0
+offset_right = 759.0
+offset_bottom = 619.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("12_ftqje")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=338517611]
+z_index = -1
+custom_minimum_size = Vector2(500, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5803922)
 
 [node name="Pergamino" type="TextureRect" parent="." unique_id=1023079492]
 texture_filter = 1
@@ -68,16 +94,6 @@ theme_override_fonts/font = ExtResource("3_3wbcr")
 theme_override_font_sizes/font_size = 63
 text = "SELECCIONA UN HEROE
 "
-
-[node name="ColorRect" type="ColorRect" parent="." unique_id=544650027]
-z_index = -1
-custom_minimum_size = Vector2(500, 0)
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.5803922)
 
 [node name="Personajes" type="MarginContainer" parent="." unique_id=471152393]
 custom_minimum_size = Vector2(300, 300)

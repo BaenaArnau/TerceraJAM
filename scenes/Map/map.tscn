@@ -42,7 +42,7 @@ grow_vertical = 0
 texture = ExtResource("9_m76i7")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=650150078]
-offset = Vector2(576, 325)
+anchor_mode = 0
 
 [node name="MapGenerator" type="Node" parent="." unique_id=1040958756]
 script = ExtResource("1_4rr3d")

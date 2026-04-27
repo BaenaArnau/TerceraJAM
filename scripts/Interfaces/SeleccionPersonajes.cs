@@ -9,8 +9,11 @@ public partial class SeleccionPersonajes : CanvasLayer
 	[Export] private TextureButton _magoButton;
 	private Map _map;
 	private string _selectedCharacter = "";
+	private static bool _magoIsUnlocked = false;
+	
 	public override void _Ready()
 	{
+		_magoButton.Disabled = !_magoIsUnlocked;
 	}
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
@@ -39,7 +42,12 @@ public partial class SeleccionPersonajes : CanvasLayer
 
 	public void onSelecionarPressed()
 	{
-		_map.SetSelectedPlayerScenePath(_selectedCharacter);
+		Map.SetSelectedPlayerScenePath(_selectedCharacter);
 		GetTree().ChangeSceneToFile("res://scenes/Map/map.tscn");
+	}
+	
+	public static void UnlockMago(bool unlock)
+	{
+		_magoIsUnlocked = unlock;
 	}
 }

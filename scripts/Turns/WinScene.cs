@@ -9,6 +9,7 @@ namespace SpellsAndRooms.scripts.Turns
         public delegate void WinClosedEventHandler();
 
         private const string DefaultBackgroundPath = "res://assets/Turns/BattelBackground.png";
+        private const string MainMenuScenePath = "res://scenes/Interfaces/menu_principal.tscn";
 
         private Player _player;
         private int _earnedGold;
@@ -164,6 +165,9 @@ namespace SpellsAndRooms.scripts.Turns
 
         private void RefreshUi()
         {
+            if (_isFinalBossVictory)
+                SeleccionPersonajes.UnlockMago(true);
+
             if (_player == null)
                 return;
 
@@ -184,6 +188,12 @@ namespace SpellsAndRooms.scripts.Turns
 
         private void OnContinuePressed()
         {
+            if (_isFinalBossVictory)
+            {
+                GetTree().ChangeSceneToFile(MainMenuScenePath);
+                return;
+            }
+
             EmitSignal(SignalName.WinClosed);
             QueueFree();
         }
