@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://6ho3n8ykn1r" path="res://scenes/Turns/Tresure.tscn" id="5_i2v3j"]
 [ext_resource type="PackedScene" uid="uid://dxyhjjv3qn8yb" path="res://scenes/Turns/Shop.tscn" id="6_shop"]
 [ext_resource type="PackedScene" uid="uid://dxad8258k6vy2" path="res://scenes/Interfaces/menu_pausa.tscn" id="8_57bgo"]
-[ext_resource type="Texture2D" uid="uid://blyktmvglr17a" path="res://assets/Map.png" id="9_m76i7"]
+[ext_resource type="Texture2D" uid="uid://blyktmvglr17a" path="res://assets/Map/Map.png" id="9_m76i7"]
 
 [node name="Map" type="Node2D" unique_id=74220101]
 script = ExtResource("1_d6mms")

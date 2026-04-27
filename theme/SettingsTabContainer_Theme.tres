@@ -2,7 +2,7 @@
 
 [ext_resource type="FontFile" uid="uid://5lr8h01ai6yx" path="res://assets/font/upheaval/upheavtt.ttf" id="1_eh1st"]
 [ext_resource type="Texture2D" uid="uid://b5evqxvketta0" path="res://assets/icons/ButtonStyle.png" id="1_kre7a"]
-[ext_resource type="Texture2D" uid="uid://bj6vxcfruhnta" path="res://assets/FondoTitulo.png" id="2_utgdt"]
+[ext_resource type="Texture2D" uid="uid://bj6vxcfruhnta" path="res://assets/icons/FondoTitulo.png" id="2_utgdt"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_awvkd"]
 

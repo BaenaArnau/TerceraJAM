@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bkom7g56xi7tn"
-path="res://.godot/imported/MapBackround.png-041c0323051b42d41f198bbf70137549.ctex"
+uid="uid://b7ymx5nb888p3"
+path="res://.godot/imported/DungeonBackground.png-bb9f9e34bc5eb32f568b2824637956a0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/MapBackround.png"
-dest_files=["res://.godot/imported/MapBackround.png-041c0323051b42d41f198bbf70137549.ctex"]
+source_file="res://assets/Map/DungeonBackground.png"
+dest_files=["res://.godot/imported/DungeonBackground.png-bb9f9e34bc5eb32f568b2824637956a0.ctex"]
 
 [params]
 

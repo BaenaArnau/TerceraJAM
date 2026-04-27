@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b7ymx5nb888p3"
-path="res://.godot/imported/DungeonBackground.png-7c6b155cc88f91aaf12f9cd3491054c3.ctex"
+uid="uid://dn3e3skjrrp2f"
+path="res://.godot/imported/MarcoCaballeroSelect.png-87676f6e705c93ae95c2465d8d758283.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/DungeonBackground.png"
-dest_files=["res://.godot/imported/DungeonBackground.png-7c6b155cc88f91aaf12f9cd3491054c3.ctex"]
+source_file="res://assets/icons/MarcoCaballeroSelect.png"
+dest_files=["res://.godot/imported/MarcoCaballeroSelect.png-87676f6e705c93ae95c2465d8d758283.ctex"]
 
 [params]
 

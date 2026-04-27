@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cspjw2bp5eqjp"
-path="res://.godot/imported/paredPiedra.webp-6895a3f6d17639e014afd9c8b1f59472.ctex"
+uid="uid://livbfibiswin"
+path="res://.godot/imported/MarcoMagoNormalDis.png-17a4706d49ee0b7a4560f3734027fd09.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/paredPiedra.webp"
-dest_files=["res://.godot/imported/paredPiedra.webp-6895a3f6d17639e014afd9c8b1f59472.ctex"]
+source_file="res://assets/icons/MarcoMagoNormalDis.png"
+dest_files=["res://.godot/imported/MarcoMagoNormalDis.png-17a4706d49ee0b7a4560f3734027fd09.ctex"]
 
 [params]
 

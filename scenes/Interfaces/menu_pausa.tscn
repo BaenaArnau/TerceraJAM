@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://dxad8258k6vy2"]
 
-[ext_resource type="Texture2D" uid="uid://ddx86cawwofrc" path="res://assets/Pergamino.png" id="1_gehnc"]
+[ext_resource type="Texture2D" uid="uid://ddx86cawwofrc" path="res://assets/icons/Pergamino.png" id="1_gehnc"]
 [ext_resource type="Script" uid="uid://dhov5s4o3coyn" path="res://scripts/Interfaces/MenuPausa.cs" id="1_im7n4"]
-[ext_resource type="Texture2D" uid="uid://bj6vxcfruhnta" path="res://assets/FondoTitulo.png" id="2_pwxya"]
+[ext_resource type="Texture2D" uid="uid://bj6vxcfruhnta" path="res://assets/icons/FondoTitulo.png" id="2_pwxya"]
 [ext_resource type="FontFile" uid="uid://5lr8h01ai6yx" path="res://assets/font/upheaval/upheavtt.ttf" id="3_je6uc"]
 [ext_resource type="Theme" uid="uid://cspr6p2va4ryf" path="res://theme/Button_Theme.tres" id="4_pwxya"]
 [ext_resource type="PackedScene" uid="uid://csb3jibyjau2q" path="res://scenes/Interfaces/settings.tscn" id="5_je6uc"]

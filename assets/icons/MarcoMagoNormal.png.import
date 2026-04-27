@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://kcgutk6mkexj"
-path="res://.godot/imported/SpellsAndRoomsPortada.png-22b5945b862b5370e3004dad45d2dd81.ctex"
+uid="uid://b51mj8dct7fkv"
+path="res://.godot/imported/MarcoMagoNormal.png-e1402347d4a30075206e9d8dd2c5aae6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/SpellsAndRoomsPortada.png"
-dest_files=["res://.godot/imported/SpellsAndRoomsPortada.png-22b5945b862b5370e3004dad45d2dd81.ctex"]
+source_file="res://assets/icons/MarcoMagoNormal.png"
+dest_files=["res://.godot/imported/MarcoMagoNormal.png-e1402347d4a30075206e9d8dd2c5aae6.ctex"]
 
 [params]
 

@@ -1,0 +1,127 @@
+[gd_scene format=3 uid="uid://dpxsqadksniue"]
+
+[ext_resource type="Texture2D" uid="uid://ddx86cawwofrc" path="res://assets/icons/Pergamino.png" id="1_3wnwp"]
+[ext_resource type="Script" uid="uid://de5bob441bmjn" path="res://scripts/Interfaces/SeleccionPersonajes.cs" id="1_h47sb"]
+[ext_resource type="Texture2D" uid="uid://bj6vxcfruhnta" path="res://assets/icons/FondoTitulo.png" id="2_tkxp1"]
+[ext_resource type="FontFile" uid="uid://5lr8h01ai6yx" path="res://assets/font/upheaval/upheavtt.ttf" id="3_3wbcr"]
+[ext_resource type="Texture2D" uid="uid://etdmehsuwfi1" path="res://assets/icons/MarcoCaballeroNormal.png" id="4_h47sb"]
+[ext_resource type="Texture2D" uid="uid://b15m60yk1dmps" path="res://assets/icons/MarcoCaballeroNormalPress.png" id="5_4oo1t"]
+[ext_resource type="Texture2D" uid="uid://dn3e3skjrrp2f" path="res://assets/icons/MarcoCaballeroSelect.png" id="6_yqc31"]
+[ext_resource type="Texture2D" uid="uid://b51mj8dct7fkv" path="res://assets/icons/MarcoMagoNormal.png" id="8_yqc31"]
+[ext_resource type="Texture2D" uid="uid://bxk1af1oy5kh3" path="res://assets/icons/MarcoMagoSelect.png" id="9_pbnf7"]
+[ext_resource type="Texture2D" uid="uid://livbfibiswin" path="res://assets/icons/MarcoMagoNormalDis.png" id="10_yqc31"]
+
+[node name="SeleccionPersonajes" type="CanvasLayer" unique_id=2126597733 node_paths=PackedStringArray("_caballeroButton", "_magoButton")]
+script = ExtResource("1_h47sb")
+_caballeroButton = NodePath("MarginContainer/Personajes/Caballero")
+_magoButton = NodePath("MarginContainer/Personajes/Mago")
+
+[node name="Pergamino" type="TextureRect" parent="." unique_id=1023079492]
+texture_filter = 1
+custom_minimum_size = Vector2(700, 650)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.0
+offset_top = -325.0
+offset_right = 350.0
+offset_bottom = 325.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_3wnwp")
+
+[node name="FondoTitulo" type="TextureRect" parent="Pergamino" unique_id=1516592297]
+z_index = 1
+texture_filter = 1
+custom_minimum_size = Vector2(800, 200)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 47.0
+offset_right = 400.0
+offset_bottom = 247.0
+grow_horizontal = 2
+texture = ExtResource("2_tkxp1")
+
+[node name="Label" type="Label" parent="Pergamino/FondoTitulo" unique_id=138387433]
+z_index = 1
+texture_filter = 1
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -322.5
+offset_top = -131.0
+offset_right = 322.5
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(2.4065375e-08, 0.25036317, 0.28748178, 1)
+theme_override_fonts/font = ExtResource("3_3wbcr")
+theme_override_font_sizes/font_size = 63
+text = "SELECCIONA UN HEROE
+"
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=544650027]
+z_index = -1
+custom_minimum_size = Vector2(500, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5803922)
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=471152393]
+custom_minimum_size = Vector2(300, 300)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -219.0
+offset_right = 250.0
+offset_bottom = 281.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 200
+theme_override_constants/margin_right = 100
+theme_override_constants/margin_bottom = 200
+
+[node name="Personajes" type="HBoxContainer" parent="MarginContainer" unique_id=963076479]
+texture_filter = 1
+layout_mode = 2
+
+[node name="Caballero" type="TextureButton" parent="MarginContainer/Personajes" unique_id=260940168]
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+texture_normal = ExtResource("4_h47sb")
+texture_pressed = ExtResource("6_yqc31")
+texture_hover = ExtResource("6_yqc31")
+texture_disabled = ExtResource("5_4oo1t")
+texture_focused = ExtResource("6_yqc31")
+stretch_mode = 5
+
+[node name="Mago" type="TextureButton" parent="MarginContainer/Personajes" unique_id=1154310932]
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+toggle_mode = true
+texture_normal = ExtResource("8_yqc31")
+texture_pressed = ExtResource("9_pbnf7")
+texture_hover = ExtResource("9_pbnf7")
+texture_disabled = ExtResource("10_yqc31")
+texture_focused = ExtResource("9_pbnf7")
+stretch_mode = 5
+
+[connection signal="pressed" from="MarginContainer/Personajes/Caballero" to="." method="onCaballeroSelect"]
+[connection signal="pressed" from="MarginContainer/Personajes/Mago" to="." method="onMagoSelect"]

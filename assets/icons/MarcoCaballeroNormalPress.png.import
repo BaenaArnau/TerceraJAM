@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://blyktmvglr17a"
-path="res://.godot/imported/Map.png-0823e9f6d345efe07b57eedf27d429f0.ctex"
+uid="uid://b15m60yk1dmps"
+path="res://.godot/imported/MarcoCaballeroNormalPress.png-7af4d77f091730593055a54ea8862eeb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Map.png"
-dest_files=["res://.godot/imported/Map.png-0823e9f6d345efe07b57eedf27d429f0.ctex"]
+source_file="res://assets/icons/MarcoCaballeroNormalPress.png"
+dest_files=["res://.godot/imported/MarcoCaballeroNormalPress.png-7af4d77f091730593055a54ea8862eeb.ctex"]
 
 [params]
 

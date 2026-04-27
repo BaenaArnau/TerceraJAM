@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://drimpidmpkm8m"
-path="res://.godot/imported/MapBackround.png-b66e899b758e754df5b40ebe7b836c1c.ctex"
+uid="uid://bxk1af1oy5kh3"
+path="res://.godot/imported/MarcoMagoSelect.png-385ee596b58d87dc576312cce9cfaf78.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/MapBackround.png"
-dest_files=["res://.godot/imported/MapBackround.png-b66e899b758e754df5b40ebe7b836c1c.ctex"]
+source_file="res://assets/icons/MarcoMagoSelect.png"
+dest_files=["res://.godot/imported/MarcoMagoSelect.png-385ee596b58d87dc576312cce9cfaf78.ctex"]
 
 [params]
 
