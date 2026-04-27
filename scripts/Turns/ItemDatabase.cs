@@ -1,11 +1,12 @@
 using Godot;
 using System.Collections.Generic;
-using System.Globalization;
 
 namespace SpellsAndRooms.scripts.Turns
 {
+    /// @brief Carga y expone datos de consumibles y pasivos desde CSV.
     public sealed class ItemDatabase
     {
+        /// @brief Datos normalizados de un consumible disponible en tienda/cofres.
         public sealed class ConsumableDefinition
         {
             public string Name { get; init; } = "Item";
@@ -17,6 +18,7 @@ namespace SpellsAndRooms.scripts.Turns
             public string ImagePath { get; init; } = string.Empty;
         }
 
+        /// @brief Datos normalizados de un pasivo disponible en tienda/cofres.
         public sealed class PassiveDefinition
         {
             public string Name { get; init; } = "Passive";
@@ -35,12 +37,14 @@ namespace SpellsAndRooms.scripts.Turns
         public List<ConsumableDefinition> Consumables => _consumables;
         public List<PassiveDefinition> Passives => _passives;
 
+        /// @brief Inicializa la base y carga ambos CSV de items.
         public ItemDatabase()
         {
             LoadConsumables();
             LoadPassives();
         }
 
+        /// @brief Carga consumibles desde `ConsumableItems.csv`.
         private void LoadConsumables()
         {
             if (!FileAccess.FileExists(ConsumableCsvPath))
@@ -67,7 +71,7 @@ namespace SpellsAndRooms.scripts.Turns
                 if (isHeader)
                 {
                     List<string> headerCols = CsvUtils.SplitLine(line);
-                    pathIndex = FindColumnIndex(headerCols, "path");
+                    pathIndex = TurnCsvUtils.FindColumnIndex(headerCols, "path");
                     isHeader = false;
                     continue;
                 }
@@ -85,9 +89,9 @@ namespace SpellsAndRooms.scripts.Turns
                     Name = name,
                     Type = cols[1].Trim(),
                     Subtype = cols[2].Trim(),
-                    Potency = ParseInt(cols[3], 0),
+                    Potency = TurnCsvUtils.ParseInt(cols[3], 0),
                     Description = cols[4].Trim(),
-                    Price = cols.Count > 5 ? ParseInt(cols[5], 0) : ParseInt(cols[3], 0),
+                    Price = cols.Count > 5 ? TurnCsvUtils.ParseInt(cols[5], 0) : TurnCsvUtils.ParseInt(cols[3], 0),
                     ImagePath = pathIndex >= 0 && pathIndex < cols.Count
                         ? cols[pathIndex].Trim()
                         : (cols.Count > 6 ? cols[6].Trim() : string.Empty)
@@ -95,6 +99,7 @@ namespace SpellsAndRooms.scripts.Turns
             }
         }
 
+        /// @brief Carga pasivos desde `PassiveItem.csv`.
         private void LoadPassives()
         {
             if (!FileAccess.FileExists(PassiveCsvPath))
@@ -121,7 +126,7 @@ namespace SpellsAndRooms.scripts.Turns
                 if (isHeader)
                 {
                     List<string> headerCols = CsvUtils.SplitLine(line);
-                    pathIndex = FindColumnIndex(headerCols, "path");
+                    pathIndex = TurnCsvUtils.FindColumnIndex(headerCols, "path");
                     isHeader = false;
                     continue;
                 }
@@ -138,33 +143,14 @@ namespace SpellsAndRooms.scripts.Turns
                 {
                     Name = name,
                     Type = cols[1].Trim(),
-                    BonusValue = ParseInt(cols[2], 0),
+                    BonusValue = TurnCsvUtils.ParseInt(cols[2], 0),
                     Description = cols[3].Trim(),
-                    Price = ParseInt(cols[4], 0),
+                    Price = TurnCsvUtils.ParseInt(cols[4], 0),
                     ImagePath = pathIndex >= 0 && pathIndex < cols.Count
                         ? cols[pathIndex].Trim()
                         : (cols.Count > 5 ? cols[5].Trim() : string.Empty)
                 });
             }
-        }
-
-        private static int FindColumnIndex(List<string> headers, string columnName)
-        {
-            if (headers == null || headers.Count == 0 || string.IsNullOrWhiteSpace(columnName))
-                return -1;
-
-            for (int i = 0; i < headers.Count; i++)
-            {
-                if (headers[i].Trim().Equals(columnName, System.StringComparison.OrdinalIgnoreCase))
-                    return i;
-            }
-
-            return -1;
-        }
-
-        private static int ParseInt(string value, int fallback)
-        {
-            return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int parsed) ? parsed : fallback;
         }
     }
 }

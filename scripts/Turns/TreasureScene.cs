@@ -27,7 +27,7 @@ namespace SpellsAndRooms.scripts.Turns
             public string Title { get; init; } = string.Empty;
             public string Subtitle { get; init; } = string.Empty;
             public string Description { get; init; } = string.Empty;
-            public string ImagePath { get; init; } = string.Empty;
+            public Texture2D ImageTexture { get; init; }
             public int GoldAmount { get; init; }
             public string ConsumableType { get; init; } = string.Empty;
             public string ConsumableSubtype { get; init; } = string.Empty;
@@ -193,7 +193,7 @@ namespace SpellsAndRooms.scripts.Turns
                 SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
                 SizeFlagsVertical = Control.SizeFlags.ExpandFill
             };
-            rewardPanel.AddThemeStyleboxOverride("panel", CreateCardStyle());
+            rewardPanel.AddThemeStyleboxOverride("panel", TurnUiStyleUtils.CreateCardStyle());
             inner.AddChild(rewardPanel);
 
             var rewardLayout = new VBoxContainer
@@ -208,7 +208,7 @@ namespace SpellsAndRooms.scripts.Turns
                 CustomMinimumSize = new Vector2(0, 130),
                 SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
             };
-            imageFrame.AddThemeStyleboxOverride("panel", CreateImageFrameStyle());
+            imageFrame.AddThemeStyleboxOverride("panel", TurnUiStyleUtils.CreateImageFrameStyle());
             rewardLayout.AddChild(imageFrame);
 
             _rewardImage = new TextureRect
@@ -288,7 +288,7 @@ namespace SpellsAndRooms.scripts.Turns
                 AnchorBottom = 0.82f,
                 MouseFilter = Control.MouseFilterEnum.Stop
             };
-            _replacementPanel.AddThemeStyleboxOverride("panel", CreateCardStyle());
+            _replacementPanel.AddThemeStyleboxOverride("panel", TurnUiStyleUtils.CreateCardStyle());
             _uiRoot.AddChild(_replacementPanel);
 
             var replacementLayout = new VBoxContainer
@@ -336,7 +336,7 @@ namespace SpellsAndRooms.scripts.Turns
             _rewardDescriptionLabel.Clear();
             _rewardDescriptionLabel.AppendText(_reward.Description);
 
-            Texture2D texture = TryLoadTexture(_reward.ImagePath);
+            Texture2D texture = _reward.ImageTexture;
             _rewardImage.Texture = texture;
             _rewardImage.Visible = texture != null;
 
@@ -438,7 +438,7 @@ namespace SpellsAndRooms.scripts.Turns
                     Title = def.Name,
                     Subtitle = $"Consumible - {def.Subtype}",
                     Description = def.Description,
-                    ImagePath = ResolveConsumableImagePath(def),
+                    ImageTexture = TurnImageResolver.ResolveConsumableTexture(def),
                     ConsumableType = def.Type,
                     ConsumableSubtype = def.Subtype,
                     ConsumablePotency = def.Potency
@@ -460,7 +460,7 @@ namespace SpellsAndRooms.scripts.Turns
                     Title = def.Name,
                     Subtitle = $"Pasivo - {def.Type}",
                     Description = def.Description,
-                    ImagePath = ResolvePassiveImagePath(def),
+                    ImageTexture = TurnImageResolver.ResolvePassiveTexture(def),
                     PassiveType = def.Type,
                     PassiveBonusValue = def.BonusValue
                 });
@@ -484,7 +484,7 @@ namespace SpellsAndRooms.scripts.Turns
                     Title = def.Name,
                     Subtitle = "Habilidad",
                     Description = def.Description,
-                    ImagePath = ResolveSkillImagePath(def)
+                    ImageTexture = TurnImageResolver.ResolveSkillTexture(def)
                 });
             }
 
@@ -565,7 +565,7 @@ namespace SpellsAndRooms.scripts.Turns
             _pendingSkillToLearn = skill;
             _isChoosingReplacement = true;
 
-            ClearContainer(_replacementGrid);
+            TurnUiStyleUtils.ClearContainer(_replacementGrid);
             _replacementLabel.Text = $"Tu lista esta llena. Elige una habilidad para reemplazar por {skill.Name}.";
             _replacementPanel.Visible = true;
 
@@ -630,128 +630,5 @@ namespace SpellsAndRooms.scripts.Turns
             QueueFree();
         }
 
-        private Texture2D TryLoadTexture(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path) || !ResourceLoader.Exists(path))
-                return null;
-
-            return GD.Load<Texture2D>(path);
-        }
-
-        private static string Normalize(string value)
-        {
-            return (value ?? string.Empty).Trim().ToLowerInvariant();
-        }
-
-        private static string FirstExistingPath(params string[] candidates)
-        {
-            foreach (string candidate in candidates)
-            {
-                if (!string.IsNullOrWhiteSpace(candidate) && ResourceLoader.Exists(candidate))
-                    return candidate;
-            }
-
-            return string.Empty;
-        }
-
-        private string ResolveConsumableImagePath(ItemDatabase.ConsumableDefinition def)
-        {
-            if (!string.IsNullOrWhiteSpace(def.ImagePath) && ResourceLoader.Exists(def.ImagePath))
-                return def.ImagePath;
-
-            string name = Normalize(def.Name);
-            string subtype = Normalize(def.Subtype);
-
-            if (name.Contains("health") || subtype.Contains("healing"))
-                return FirstExistingPath("res://assets/Items/Consumable/Poti.png");
-
-            if (name.Contains("mana") || subtype.Contains("mana"))
-                return FirstExistingPath("res://assets/Items/Consumable/PotiManai.png");
-
-            return FirstExistingPath(
-                $"res://assets/Items/Consumable/{def.Name}.png",
-                "res://assets/Items/Consumable/Poti.png",
-                "res://assets/Items/Consumable/PotiManai.png");
-        }
-
-        private string ResolvePassiveImagePath(ItemDatabase.PassiveDefinition def)
-        {
-            if (!string.IsNullOrWhiteSpace(def.ImagePath) && ResourceLoader.Exists(def.ImagePath))
-                return def.ImagePath;
-
-            return FirstExistingPath(
-                $"res://assets/Items/Passive/{def.Name}.png",
-                "res://assets/Items/Passive/pecheGris.png");
-        }
-
-        private string ResolveSkillImagePath(SkillDatabase.SkillDefinition def)
-        {
-            if (!string.IsNullOrWhiteSpace(def.ImagePath) && ResourceLoader.Exists(def.ImagePath))
-                return def.ImagePath;
-
-            string name = Normalize(def.Name);
-
-            if (name.Contains("pyro"))
-                return FirstExistingPath("res://assets/Characters/Enemy/BlackGoblin.png");
-            if (name.Contains("aqua"))
-                return FirstExistingPath("res://assets/Characters/Player/MagoAzul.png");
-            if (name.Contains("earth"))
-                return FirstExistingPath("res://assets/Characters/Enemy/Esqueleto.png");
-
-            return FirstExistingPath(
-                "res://assets/Characters/Enemy/Slime.png",
-                "res://assets/Characters/Player/CaballeroNegro.png");
-        }
-
-        private static StyleBoxFlat CreateCardStyle()
-        {
-            return new StyleBoxFlat
-            {
-                BgColor = new Color(0.10f, 0.10f, 0.14f, 0.92f),
-                BorderColor = new Color(0.83f, 0.71f, 0.41f, 1.0f),
-                BorderWidthLeft = 3,
-                BorderWidthTop = 3,
-                BorderWidthRight = 3,
-                BorderWidthBottom = 3,
-                CornerRadiusTopLeft = 12,
-                CornerRadiusTopRight = 12,
-                CornerRadiusBottomLeft = 12,
-                CornerRadiusBottomRight = 12,
-                ContentMarginLeft = 12,
-                ContentMarginTop = 12,
-                ContentMarginRight = 12,
-                ContentMarginBottom = 12
-            };
-        }
-
-        private static StyleBoxFlat CreateImageFrameStyle()
-        {
-            return new StyleBoxFlat
-            {
-                BgColor = new Color(0.06f, 0.06f, 0.09f, 0.90f),
-                BorderColor = new Color(0.44f, 0.50f, 0.62f, 1.0f),
-                BorderWidthLeft = 2,
-                BorderWidthTop = 2,
-                BorderWidthRight = 2,
-                BorderWidthBottom = 2,
-                CornerRadiusTopLeft = 8,
-                CornerRadiusTopRight = 8,
-                CornerRadiusBottomLeft = 8,
-                CornerRadiusBottomRight = 8,
-                ContentMarginLeft = 6,
-                ContentMarginTop = 6,
-                ContentMarginRight = 6,
-                ContentMarginBottom = 6
-            };
-        }
-
-        private static void ClearContainer(Container container)
-        {
-            if (container == null)
-                return;
-
-            foreach (Node child in container.GetChildren())
-                child.QueueFree();
-        }
     }
 }

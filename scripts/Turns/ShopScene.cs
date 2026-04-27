@@ -1,5 +1,4 @@
 using Godot;
-using System;
 using System.Collections.Generic;
 using SpellsAndRooms.scripts.Items;
 using SpellsAndRooms.scripts.Characters;
@@ -222,7 +221,7 @@ namespace SpellsAndRooms.scripts.Turns
                 AnchorBottom = 0.82f,
                 MouseFilter = Control.MouseFilterEnum.Stop
             };
-            _replacementPanel.AddThemeStyleboxOverride("panel", CreateCardStyle());
+            _replacementPanel.AddThemeStyleboxOverride("panel", TurnUiStyleUtils.CreateCardStyle());
             _uiRoot.AddChild(_replacementPanel);
 
             var replacementLayout = new VBoxContainer
@@ -303,7 +302,7 @@ namespace SpellsAndRooms.scripts.Turns
                 CustomMinimumSize = new Vector2(250, 0)
             };
 
-            panel.AddThemeStyleboxOverride("panel", CreateCardStyle());
+            panel.AddThemeStyleboxOverride("panel", TurnUiStyleUtils.CreateCardStyle());
             panel.TooltipText = $"{offer.Title}\n{offer.Description}\nPrecio: {offer.Price} oro";
             panel.MouseEntered += () => OnOfferHover(offer);
             panel.MouseExited += OnOfferHoverExit;
@@ -320,7 +319,7 @@ namespace SpellsAndRooms.scripts.Turns
                 CustomMinimumSize = new Vector2(0, 130),
                 SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
             };
-            imageFrame.AddThemeStyleboxOverride("panel", CreateImageFrameStyle());
+            imageFrame.AddThemeStyleboxOverride("panel", TurnUiStyleUtils.CreateImageFrameStyle());
             layout.AddChild(imageFrame);
 
             var imageTexture = new TextureRect
@@ -401,64 +400,6 @@ namespace SpellsAndRooms.scripts.Turns
         }
         
         /// <summary>
-        /// Crea un StyleBoxFlat personalizado para las cartas de la tienda, definiendo su apariencia con colores de fondo, bordes, esquinas redondeadas y márgenes de contenido. Este estilo se aplica a cada carta para darle una apariencia distintiva y coherente con el diseño general de la tienda, ayudando a que las ofertas se destaquen visualmente y sean atractivas para el jugador. Se recomienda ajustar los colores y tamaños según el estilo artístico del juego para lograr la mejor integración visual posible.
-        /// </summary>
-        /// <returns>
-        /// Un StyleBoxFlat configurado con los parámetros deseados para las cartas de la tienda, incluyendo un color de fondo oscuro con algo de transparencia, bordes dorados para resaltar las cartas, esquinas redondeadas para un aspecto más amigable y márgenes internos para asegurar que el contenido de la carta no quede pegado a los bordes. Este estilo se utiliza en el método CreateOfferCard para aplicar la apariencia a cada carta generada en la interfaz de la tienda. Ajustar este estilo puede ayudar a mejorar la estética general de la tienda y hacer que las ofertas sean más atractivas visualmente para el jugador.
-        /// </returns>
-        private static StyleBoxFlat CreateCardStyle()
-        {
-            var style = new StyleBoxFlat
-            {
-                BgColor = new Color(0.10f, 0.10f, 0.14f, 0.92f),
-                BorderColor = new Color(0.83f, 0.71f, 0.41f, 1.0f),
-                BorderWidthLeft = 3,
-                BorderWidthTop = 3,
-                BorderWidthRight = 3,
-                BorderWidthBottom = 3,
-                CornerRadiusTopLeft = 12,
-                CornerRadiusTopRight = 12,
-                CornerRadiusBottomLeft = 12,
-                CornerRadiusBottomRight = 12,
-                ContentMarginLeft = 12,
-                ContentMarginTop = 12,
-                ContentMarginRight = 12,
-                ContentMarginBottom = 12
-            };
-
-            return style;
-        }
-        
-        /// <summary>
-        /// Crea un StyleBoxFlat personalizado para el marco de la imagen en las cartas de la tienda, definiendo su apariencia con un color de fondo más oscuro y transparente, bordes grises para contrastar con la imagen, esquinas redondeadas para mantener la coherencia visual con el estilo de las cartas y márgenes internos para asegurar que la imagen no quede pegada a los bordes del marco. Este estilo se aplica al contenedor que rodea la imagen en cada carta, ayudando a que las imágenes se destaquen visualmente y mantengan una presentación ordenada dentro de la carta. Ajustar este estilo puede mejorar la integración visual de las imágenes en las cartas y hacer que se vean más atractivas para el jugador.
-        /// </summary>
-        /// <returns>
-        /// Un StyleBoxFlat configurado con los parámetros deseados para el marco de la imagen en las cartas de la tienda, incluyendo un color de fondo oscuro y transparente para que la imagen resalte, bordes grises para crear un contraste visual, esquinas redondeadas para mantener la coherencia con el estilo general de las cartas y márgenes internos para asegurar que la imagen tenga espacio suficiente dentro del marco. Este estilo se utiliza en el método CreateOfferCard para aplicar la apariencia al contenedor de la imagen en cada carta generada en la interfaz de la tienda. Ajustar este estilo puede ayudar a mejorar la presentación visual de las imágenes en las cartas y hacer que se vean más integradas y atractivas para el jugador.
-        /// </returns>
-        private static StyleBoxFlat CreateImageFrameStyle()
-        {
-            var style = new StyleBoxFlat
-            {
-                BgColor = new Color(0.06f, 0.06f, 0.09f, 0.90f),
-                BorderColor = new Color(0.44f, 0.50f, 0.62f, 1.0f),
-                BorderWidthLeft = 2,
-                BorderWidthTop = 2,
-                BorderWidthRight = 2,
-                BorderWidthBottom = 2,
-                CornerRadiusTopLeft = 8,
-                CornerRadiusTopRight = 8,
-                CornerRadiusBottomLeft = 8,
-                CornerRadiusBottomRight = 8,
-                ContentMarginLeft = 6,
-                ContentMarginTop = 6,
-                ContentMarginRight = 6,
-                ContentMarginBottom = 6
-            };
-
-            return style;
-        }
-        
-        /// <summary>
         /// Maneja el evento de compra de una oferta, verificando si el jugador puede permitirse la compra, aplicando los efectos correspondientes según el tipo de oferta (consumible, pasivo o habilidad) y actualizando la interfaz para reflejar los cambios. Este método se llama cuando el jugador hace clic en el botón de compra de una carta, y se encarga de validar la compra, aplicar sus efectos al jugador (como agregar un consumible al inventario, otorgar un pasivo o aprender una nueva habilidad) y marcar la oferta como comprada para evitar compras repetidas. Además, si la oferta es una habilidad que requiere reemplazo, inicia el proceso para que el jugador elija qué habilidad desea reemplazar.
         /// </summary>
         /// <param name="offer">
@@ -481,49 +422,11 @@ namespace SpellsAndRooms.scripts.Turns
         }
 
         /// <summary>
-        /// Dado un conjunto de rutas candidatas, devuelve la primera textura que corresponde a un recurso existente.
-        /// </summary>
-        private static Texture2D LoadFirstExistingTexture(params string[] candidates)
-        {
-            foreach (string candidate in candidates)
-            {
-                if (!string.IsNullOrWhiteSpace(candidate) && ResourceLoader.Exists(candidate))
-                    return GD.Load<Texture2D>(candidate);
-            }
-
-            return null;
-        }
-
-        private static Texture2D TryLoadTexture(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path) || !ResourceLoader.Exists(path))
-                return null;
-
-            return GD.Load<Texture2D>(path);
-        }
-        
-        /// <summary>
         /// Resuelve la textura para un consumible dado, utilizando su nombre y subtipo para determinar qué imagen asociar.
         /// </summary>
         private Texture2D ResolveConsumableTexture(ItemDatabase.ConsumableDefinition def)
         {
-            Texture2D csvTexture = TryLoadTexture(def.ImagePath);
-            if (csvTexture != null)
-                return csvTexture;
-
-            string name = Normalize(def.Name);
-            string subtype = Normalize(def.Subtype);
-
-            if (name.Contains("health") || subtype.Contains("healing"))
-                return LoadFirstExistingTexture("res://assets/Items/Consumable/Poti.png");
-
-            if (name.Contains("mana") || subtype.Contains("mana"))
-                return LoadFirstExistingTexture("res://assets/Items/Consumable/PotiManai.png");
-
-            return LoadFirstExistingTexture(
-                $"res://assets/Items/Consumable/{def.Name}.png",
-                "res://assets/Items/Consumable/Poti.png",
-                "res://assets/Items/Consumable/PotiManai.png");
+            return TurnImageResolver.ResolveConsumableTexture(def);
         }
         
         /// <summary>
@@ -531,13 +434,7 @@ namespace SpellsAndRooms.scripts.Turns
         /// </summary>
         private Texture2D ResolvePassiveTexture(ItemDatabase.PassiveDefinition def)
         {
-            Texture2D csvTexture = TryLoadTexture(def.ImagePath);
-            if (csvTexture != null)
-                return csvTexture;
-
-            return LoadFirstExistingTexture(
-                $"res://assets/Items/Passive/{def.Name}.png",
-                "res://assets/Items/Passive/pecheGris.png");
+            return TurnImageResolver.ResolvePassiveTexture(def);
         }
         
         /// <summary>
@@ -545,38 +442,9 @@ namespace SpellsAndRooms.scripts.Turns
         /// </summary>
         private Texture2D ResolveSkillTexture(SkillDatabase.SkillDefinition def)
         {
-            Texture2D csvTexture = TryLoadTexture(def.ImagePath);
-            if (csvTexture != null)
-                return csvTexture;
-
-            string name = Normalize(def.Name);
-
-            if (name.Contains("pyro"))
-                return LoadFirstExistingTexture("res://assets/Characters/Enemy/BlackGoblin.png");
-            if (name.Contains("aqua"))
-                return LoadFirstExistingTexture("res://assets/Characters/Player/MagoAzul.png");
-            if (name.Contains("earth"))
-                return LoadFirstExistingTexture("res://assets/Characters/Enemy/Esqueleto.png");
-
-            return LoadFirstExistingTexture(
-                "res://assets/Characters/Enemy/Slime.png",
-                "res://assets/Characters/Player/CaballeroNegro.png");
+            return TurnImageResolver.ResolveSkillTexture(def);
         }
         
-        /// <summary>
-        /// Normaliza una cadena para facilitar las comparaciones, convirtiéndola a minúsculas y eliminando espacios innecesarios. Este método se utiliza principalmente para comparar nombres y tipos de consumibles, pasivos y habilidades al resolver las rutas de las imágenes asociadas a las ofertas en la tienda. Al normalizar las cadenas, se asegura que las comparaciones sean más robustas y no se vean afectadas por diferencias en mayúsculas, espacios adicionales o formatos inconsistentes en los nombres y tipos definidos en la base de datos. Esto ayuda a mejorar la precisión de la asignación de imágenes a las ofertas, asegurando que se utilicen las imágenes correctas según el contenido de cada oferta.
-        /// </summary>
-        /// <param name="value">
-        /// La cadena que se desea normalizar. Se espera que esta cadena pueda contener cualquier combinación de mayúsculas, minúsculas y espacios, y este método se encargará de convertirla a un formato estándar (todo en minúsculas y sin espacios innecesarios) para facilitar las comparaciones. Es importante que esta cadena no sea nula, aunque el método maneja ese caso devolviendo una cadena vacía, lo que permite que el proceso de normalización sea seguro incluso si se reciben entradas inesperadas o mal formateadas.
-        /// </param>
-        /// <returns>
-        /// La cadena normalizada, convertida a minúsculas y con espacios innecesarios eliminados. Si la cadena de entrada es nula, se devuelve una cadena vacía. Este resultado se utiliza para realizar comparaciones más robustas al resolver las rutas de las imágenes para las ofertas en la tienda, asegurando que las comparaciones no se vean afectadas por diferencias en el formato de los nombres y tipos definidos en la base de datos. Al normalizar las cadenas, se mejora la precisión de la asignación de imágenes a las ofertas, lo que contribuye a una mejor presentación visual en la tienda.
-        /// </returns>
-        private static string Normalize(string value)
-        {
-            return (value ?? string.Empty).Trim().ToLowerInvariant();
-        }
-
         /// <summary>
         /// Genera la lista de ofertas activas para la tienda, seleccionando aleatoriamente entre consumibles, pasivos y habilidades según las probabilidades definidas. Este método construye pools de ofertas disponibles para cada tipo (consumibles, pasivos y habilidades) basados en la base de datos y el estado actual del jugador (por ejemplo, evitando ofrecer habilidades que el jugador ya tiene). Luego, selecciona ofertas de estos pools utilizando un sistema de pesos para determinar qué tipo de oferta es más probable que aparezca, asegurándose de no repetir ofertas ya seleccionadas en la misma generación. Si no hay suficientes ofertas disponibles para llenar todas las ranuras, se completa con cualquier oferta restante para garantizar que siempre haya un número completo de ofertas activas en la tienda. Este método se llama cada vez que se necesita actualizar las ofertas en la tienda, como al entrar por primera vez o después de comprar una oferta.
         /// </summary>
@@ -1039,7 +907,7 @@ namespace SpellsAndRooms.scripts.Turns
             _pendingSkillOfferIndex = offerIndex;
             _pendingSkillToLearn = skill;
 
-            ClearContainer(_replacementGrid);
+            TurnUiStyleUtils.ClearContainer(_replacementGrid);
             _replacementLabel.Text = $"Slots llenos. Elige una habilidad para reemplazar por {skill.Name}.";
             _replacementPanel.Visible = true;
             _statusLabel.Text = "Selecciona una habilidad para reemplazar.";
@@ -1130,21 +998,6 @@ namespace SpellsAndRooms.scripts.Turns
 
             if (_replacementPanel != null)
                 _replacementPanel.Visible = false;
-        }
-        
-        /// <summary>
-        /// Limpia todos los nodos hijos de un contenedor dado, eliminándolos de la escena. Este método se utiliza para limpiar dinámicamente el contenido de un contenedor en la interfaz de usuario, como el grid de selección de habilidades para reemplazar, antes de agregar nuevos elementos. Al llamar a QueueFree() en cada nodo hijo, se asegura que los nodos se eliminen correctamente de la escena y se liberen los recursos asociados. Es importante verificar que el contenedor no sea null antes de intentar acceder a sus hijos para evitar errores. Este método es fundamental para mantener la interfaz de usuario actualizada y libre de elementos obsoletos o duplicados durante el proceso de generación de ofertas y selección de habilidades en la tienda.
-        /// </summary>
-        /// <param name="container">
-        /// El contenedor cuyos nodos hijos se deben eliminar. Este parámetro se espera que sea un nodo de tipo Container (o una de sus subclases) que contenga los nodos que se desean limpiar. Es importante que este parámetro no sea null para evitar errores al intentar acceder a sus hijos. Al pasar el contenedor correcto, este método podrá eliminar todos los nodos hijos de manera efectiva, lo que es esencial para mantener la interfaz de usuario actualizada y libre de elementos obsoletos o duplicados durante el proceso de generación de ofertas y selección de habilidades en la tienda.
-        /// </param>
-        private static void ClearContainer(Container container)
-        {
-            if (container == null)
-                return;
-
-            foreach (Node child in container.GetChildren())
-                child.QueueFree();
         }
         
         /// <summary>

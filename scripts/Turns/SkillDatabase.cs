@@ -1,13 +1,14 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using SpellsAndRooms.scripts.Characters;
 
 namespace SpellsAndRooms.scripts.Turns
 {
+    /// @brief Base de datos de skills cargada desde CSV para combate y recompensas.
     public sealed class SkillDatabase
     {
+        /// @brief Metadatos de skill usados en tienda/cofres.
         public sealed class SkillDefinition
         {
             public string Name { get; init; } = "Skill";
@@ -23,21 +24,28 @@ namespace SpellsAndRooms.scripts.Turns
         public IReadOnlyDictionary<string, Skill> Skills => _skills;
         public IReadOnlyList<SkillDefinition> SkillDefinitions => _skillDefinitions;
 
+        /// @brief Inicializa la base y carga `Skill.csv`.
         public SkillDatabase()
         {
             LoadFromCsv();
         }
 
+        /// @brief Intenta recuperar una skill por nombre normalizado.
+        /// @param skillName Nombre buscado.
+        /// @param skill Skill encontrada.
+        /// @return true si existe una entrada para ese nombre.
         public bool TryGetSkill(string skillName, out Skill skill)
         {
             return _skills.TryGetValue(Normalize(skillName), out skill);
         }
 
+        /// @brief Devuelve una skill o fallback si no existe en la base.
         public Skill GetSkillOrDefault(string skillName, Skill fallback = null)
         {
             return TryGetSkill(skillName, out Skill skill) ? skill : fallback;
         }
 
+        /// @brief Convierte una lista de nombres en instancias de `Skill` válidas.
         public List<Skill> ResolveSkills(IEnumerable<string> skillNames)
         {
             var result = new List<Skill>();
@@ -79,7 +87,7 @@ namespace SpellsAndRooms.scripts.Turns
                 if (isHeader)
                 {
                     List<string> headerCols = CsvUtils.SplitLine(line);
-                    pathIndex = FindColumnIndex(headerCols, "path");
+                    pathIndex = TurnCsvUtils.FindColumnIndex(headerCols, "path");
                     isHeader = false;
                     continue;
                 }
@@ -90,9 +98,9 @@ namespace SpellsAndRooms.scripts.Turns
 
                 string name = cols[0].Trim();
                 Character.DamageType damageType = ParseDamageType(cols[1].Trim());
-                int damage = ParseInt(cols[2], 1);
-                int manaCost = ParseInt(cols[3], 0);
-                bool multiHit = ParseBool(cols[4]);
+                int damage = TurnCsvUtils.ParseInt(cols[2], 1);
+                int manaCost = TurnCsvUtils.ParseInt(cols[3], 0);
+                bool multiHit = TurnCsvUtils.ParseBool(cols[4]);
                 bool isHealing = damageType == Character.DamageType.None || cols[1].Trim().Equals("Healing", StringComparison.OrdinalIgnoreCase) || name.Equals("Cure", StringComparison.OrdinalIgnoreCase);
 
                 if (string.IsNullOrWhiteSpace(name))
@@ -110,26 +118,12 @@ namespace SpellsAndRooms.scripts.Turns
                 {
                     Name = name,
                     Description = cols.Count > 5 ? cols[5].Trim() : string.Empty,
-                    Price = cols.Count > 6 ? ParseInt(cols[6], 0) : 0,
+                    Price = cols.Count > 6 ? TurnCsvUtils.ParseInt(cols[6], 0) : 0,
                     ImagePath = pathIndex >= 0 && pathIndex < cols.Count
                         ? cols[pathIndex].Trim()
                         : (cols.Count > 7 ? cols[7].Trim() : string.Empty)
                 });
             }
-        }
-
-        private static int FindColumnIndex(List<string> headers, string columnName)
-        {
-            if (headers == null || headers.Count == 0 || string.IsNullOrWhiteSpace(columnName))
-                return -1;
-
-            for (int i = 0; i < headers.Count; i++)
-            {
-                if (headers[i].Trim().Equals(columnName, StringComparison.OrdinalIgnoreCase))
-                    return i;
-            }
-
-            return -1;
         }
 
         private static Character.DamageType ParseDamageType(string value)
@@ -146,15 +140,6 @@ namespace SpellsAndRooms.scripts.Turns
             return Character.DamageType.Physical;
         }
 
-        private static bool ParseBool(string value)
-        {
-            return bool.TryParse(value, out bool parsed) && parsed;
-        }
-
-        private static int ParseInt(string value, int fallback)
-        {
-            return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int parsed) ? parsed : fallback;
-        }
 
         private static string Normalize(string value)
         {
