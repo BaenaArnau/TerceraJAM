@@ -13,6 +13,7 @@ namespace SpellsAndRooms.scripts.Turns
             public string Name { get; init; } = "Skill";
             public string Description { get; init; } = string.Empty;
             public int Price { get; init; } = 0;
+            public string ImagePath { get; init; } = string.Empty;
         }
 
         private readonly Dictionary<string, Skill> _skills = new Dictionary<string, Skill>(StringComparer.OrdinalIgnoreCase);
@@ -68,6 +69,7 @@ namespace SpellsAndRooms.scripts.Turns
             }
 
             bool isHeader = true;
+            int pathIndex = -1;
             while (!file.EofReached())
             {
                 string line = file.GetLine().Trim();
@@ -76,6 +78,8 @@ namespace SpellsAndRooms.scripts.Turns
 
                 if (isHeader)
                 {
+                    List<string> headerCols = CsvUtils.SplitLine(line);
+                    pathIndex = FindColumnIndex(headerCols, "path");
                     isHeader = false;
                     continue;
                 }
@@ -106,9 +110,26 @@ namespace SpellsAndRooms.scripts.Turns
                 {
                     Name = name,
                     Description = cols.Count > 5 ? cols[5].Trim() : string.Empty,
-                    Price = cols.Count > 6 ? ParseInt(cols[6], 0) : 0
+                    Price = cols.Count > 6 ? ParseInt(cols[6], 0) : 0,
+                    ImagePath = pathIndex >= 0 && pathIndex < cols.Count
+                        ? cols[pathIndex].Trim()
+                        : (cols.Count > 7 ? cols[7].Trim() : string.Empty)
                 });
             }
+        }
+
+        private static int FindColumnIndex(List<string> headers, string columnName)
+        {
+            if (headers == null || headers.Count == 0 || string.IsNullOrWhiteSpace(columnName))
+                return -1;
+
+            for (int i = 0; i < headers.Count; i++)
+            {
+                if (headers[i].Trim().Equals(columnName, StringComparison.OrdinalIgnoreCase))
+                    return i;
+            }
+
+            return -1;
         }
 
         private static Character.DamageType ParseDamageType(string value)

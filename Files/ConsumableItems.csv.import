@@ -6,10 +6,10 @@ uid="uid://b1g4mqn20e7rm"
 
 [deps]
 
-files=["res://Files/ConsumableItems.type.translation", "res://Files/ConsumableItems.subtype.translation", "res://Files/ConsumableItems.num.translation", "res://Files/ConsumableItems.description.translation", "res://Files/ConsumableItems.value.translation"]
+files=["res://Files/ConsumableItems.type.translation", "res://Files/ConsumableItems.subtype.translation", "res://Files/ConsumableItems.num.translation", "res://Files/ConsumableItems.description.translation", "res://Files/ConsumableItems.value.translation", "res://Files/ConsumableItems.path.translation"]
 
 source_file="res://Files/ConsumableItems.csv"
-dest_files=["res://Files/ConsumableItems.type.translation", "res://Files/ConsumableItems.subtype.translation", "res://Files/ConsumableItems.num.translation", "res://Files/ConsumableItems.description.translation", "res://Files/ConsumableItems.value.translation"]
+dest_files=["res://Files/ConsumableItems.type.translation", "res://Files/ConsumableItems.subtype.translation", "res://Files/ConsumableItems.num.translation", "res://Files/ConsumableItems.description.translation", "res://Files/ConsumableItems.value.translation", "res://Files/ConsumableItems.path.translation"]
 
 [params]
 

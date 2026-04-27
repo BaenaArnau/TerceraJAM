@@ -15,7 +15,8 @@ namespace SpellsAndRooms.scripts.map
         [Export] public PackedScene ShopScenePacked;
         [Export] public PackedScene CampfireScenePacked;
         [Export] public PackedScene TreasureScenePacked;
-		[Export] private CanvasLayer _menuPausa;
+        [Export] public string SelectedPlayerScenePath = "res://scenes/Characters/Player/Oathbreakers.tscn";
+        [Export] private CanvasLayer _menuPausa;
         [Export(PropertyHint.Range, "1.0,3.0,0.05")] public float MapZoom = 1.7f;
         [Export] public float ScrollStep = 80.0f;
         [Export] public float ScrollSmoothness = 10.0f;
@@ -39,7 +40,7 @@ namespace SpellsAndRooms.scripts.map
         private EncounterDirector _encounterDirector;
         private bool _isInBattle;
         private Room _pendingCombatRoom;
-        private const string PlayerScenePath = "res://scenes/Characters/Player/Oathbreakers.tscn";
+        private const string DefaultPlayerScenePath = "res://scenes/Characters/Player/Oathbreakers.tscn";
         private const string BattleScenePath = "res://scenes/Turns/Battel.tscn";
         private const string LegacyBattleScenePath = "res://scripts/Turns/Battel.tscn";
         private const string ShopScenePath = "res://scenes/Turns/Shop.tscn";
@@ -57,8 +58,11 @@ namespace SpellsAndRooms.scripts.map
 
         public override void _Ready()
         {
-            if(_menuPausa != null)
+            if (_menuPausa == null)
                 _menuPausa = GetNodeOrNull<CanvasLayer>("menu_pausa");
+
+            if (_menuPausa != null)
+                _menuPausa.Visible = false;
 
             if (MapRoomScene == null)
             {
@@ -119,7 +123,16 @@ namespace SpellsAndRooms.scripts.map
             _enemyDatabase = new EnemyDatabase(_skillDatabase);
             _encounterDirector = new EncounterDirector(_enemyDatabase);
 
-            PackedScene playerScene = ResourceLoader.Load<PackedScene>(PlayerScenePath);
+            string playerScenePath = string.IsNullOrWhiteSpace(SelectedPlayerScenePath)
+                ? DefaultPlayerScenePath
+                : SelectedPlayerScenePath;
+
+            PackedScene playerScene = ResourceLoader.Load<PackedScene>(playerScenePath);
+            if (playerScene == null && playerScenePath != DefaultPlayerScenePath)
+            {
+                GD.PrintErr($"No se pudo cargar el personaje en '{playerScenePath}'. Se usa fallback '{DefaultPlayerScenePath}'.");
+                playerScene = ResourceLoader.Load<PackedScene>(DefaultPlayerScenePath);
+            }
             if (playerScene != null)
             {
                 _player = playerScene.Instantiate<Player>();
@@ -775,16 +788,35 @@ namespace SpellsAndRooms.scripts.map
             return _availableRooms;
         }
 
-		public override void _Input(InputEvent @event)
+        public override void _Input(InputEvent @event)
         {
-            if (@event.IsActionPressed("pausa"))
-			{
-				if (_menuPausa != null)
-				{
-					GetTree().Paused = true;
-					_menuPausa.Visible = true;
-				}
-			}
+            if (!@event.IsActionPressed("pausa"))
+                return;
+
+            // El menu de pausa solo se permite mientras el jugador esta en el mapa.
+            if (_isInBattle || _isInShop || _isInCampfire || _isInTreasure)
+                return;
+
+            if (_menuPausa == null)
+                _menuPausa = GetNodeOrNull<CanvasLayer>("menu_pausa");
+
+            if (_menuPausa == null)
+            {
+                GD.PrintErr("No se encontro 'menu_pausa' en la escena del mapa.");
+                return;
+            }
+
+            bool shouldPause = !GetTree().Paused;
+            GetTree().Paused = shouldPause;
+            _menuPausa.Visible = shouldPause;
+            GetViewport().SetInputAsHandled();
+        }
+
+        public void SetSelectedPlayerScenePath(string scenePath)
+        {
+            SelectedPlayerScenePath = string.IsNullOrWhiteSpace(scenePath)
+                ? DefaultPlayerScenePath
+                : scenePath;
         }
     }
 }

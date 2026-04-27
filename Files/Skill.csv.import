@@ -6,10 +6,10 @@ uid="uid://g17w4inh8kfo"
 
 [deps]
 
-files=["res://Files/Skill.type.translation", "res://Files/Skill.damage.translation", "res://Files/Skill.manacost.translation", "res://Files/Skill.multihit.translation", "res://Files/Skill.description.translation", "res://Files/Skill.value.translation"]
+files=["res://Files/Skill.type.translation", "res://Files/Skill.damage.translation", "res://Files/Skill.manacost.translation", "res://Files/Skill.multihit.translation", "res://Files/Skill.description.translation", "res://Files/Skill.value.translation", "res://Files/Skill.path.translation"]
 
 source_file="res://Files/Skill.csv"
-dest_files=["res://Files/Skill.type.translation", "res://Files/Skill.damage.translation", "res://Files/Skill.manacost.translation", "res://Files/Skill.multihit.translation", "res://Files/Skill.description.translation", "res://Files/Skill.value.translation"]
+dest_files=["res://Files/Skill.type.translation", "res://Files/Skill.damage.translation", "res://Files/Skill.manacost.translation", "res://Files/Skill.multihit.translation", "res://Files/Skill.description.translation", "res://Files/Skill.value.translation", "res://Files/Skill.path.translation"]
 
 [params]
 

@@ -1,3 +1,3 @@
-name,type,subtype,num,description,value
-Health Potion,Potion,Healing,20,"Una poción que restaura una pequeña cantidad de salud al ser consumida.",15
-Mana Potion,Potion,Mana,20,"Una poción que restaura una pequeña cantidad de maná al ser consumida.",25
+name,type,subtype,num,description,value,path
+Health Potion,Potion,Healing,20,"Una poción que restaura una pequeña cantidad de salud al ser consumida.",15,res://assets/Items/Consumable/Poti.png
+Mana Potion,Potion,Mana,20,"Una poción que restaura una pequeña cantidad de maná al ser consumida.",25,res://assets/Items/Consumable/PotiManai.png

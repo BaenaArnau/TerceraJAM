@@ -656,6 +656,9 @@ namespace SpellsAndRooms.scripts.Turns
 
         private string ResolveConsumableImagePath(ItemDatabase.ConsumableDefinition def)
         {
+            if (!string.IsNullOrWhiteSpace(def.ImagePath) && ResourceLoader.Exists(def.ImagePath))
+                return def.ImagePath;
+
             string name = Normalize(def.Name);
             string subtype = Normalize(def.Subtype);
 
@@ -673,6 +676,9 @@ namespace SpellsAndRooms.scripts.Turns
 
         private string ResolvePassiveImagePath(ItemDatabase.PassiveDefinition def)
         {
+            if (!string.IsNullOrWhiteSpace(def.ImagePath) && ResourceLoader.Exists(def.ImagePath))
+                return def.ImagePath;
+
             return FirstExistingPath(
                 $"res://assets/Items/Passive/{def.Name}.png",
                 "res://assets/Items/Passive/pecheGris.png");
@@ -680,6 +686,9 @@ namespace SpellsAndRooms.scripts.Turns
 
         private string ResolveSkillImagePath(SkillDatabase.SkillDefinition def)
         {
+            if (!string.IsNullOrWhiteSpace(def.ImagePath) && ResourceLoader.Exists(def.ImagePath))
+                return def.ImagePath;
+
             string name = Normalize(def.Name);
 
             if (name.Contains("pyro"))

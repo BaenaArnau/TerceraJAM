@@ -6,10 +6,10 @@ uid="uid://cwyda3wiqpfoa"
 
 [deps]
 
-files=["res://Files/PassiveItem.type.translation", "res://Files/PassiveItem.num.translation", "res://Files/PassiveItem.description.translation", "res://Files/PassiveItem.value.translation"]
+files=["res://Files/PassiveItem.type.translation", "res://Files/PassiveItem.num.translation", "res://Files/PassiveItem.description.translation", "res://Files/PassiveItem.value.translation", "res://Files/PassiveItem.path.translation"]
 
 source_file="res://Files/PassiveItem.csv"
-dest_files=["res://Files/PassiveItem.type.translation", "res://Files/PassiveItem.num.translation", "res://Files/PassiveItem.description.translation", "res://Files/PassiveItem.value.translation"]
+dest_files=["res://Files/PassiveItem.type.translation", "res://Files/PassiveItem.num.translation", "res://Files/PassiveItem.description.translation", "res://Files/PassiveItem.value.translation", "res://Files/PassiveItem.path.translation"]
 
 [params]
 

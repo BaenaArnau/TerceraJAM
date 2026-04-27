@@ -36,7 +36,7 @@ namespace SpellsAndRooms.scripts.Turns
             public string Title { get; init; } = string.Empty;
             public string Subtitle { get; init; } = string.Empty;
             public string Description { get; init; } = string.Empty;
-            public string ImagePath { get; init; } = string.Empty;
+            public Texture2D ImageTexture { get; init; }
             public int Price { get; init; }
             public bool Purchased { get; set; }
         }
@@ -46,6 +46,9 @@ namespace SpellsAndRooms.scripts.Turns
         private const float SkillWeight = 0.45f;
         private const int OffersPerVisit = 3;
         private const string DefaultStatusText = "Pasa el raton por una carta para ver la descripcion.";
+
+        [ExportGroup("Art")]
+        [Export] public Texture2D ShopBackgroundTexture;
 
         private Player _player;
         private ItemDatabase _itemDatabase;
@@ -120,7 +123,7 @@ namespace SpellsAndRooms.scripts.Turns
             var background = new TextureRect
             {
                 Name = "ShopBackground",
-                Texture = GD.Load<Texture2D>("res://assets/Turns/Shop.png"),
+                Texture = ShopBackgroundTexture ?? GD.Load<Texture2D>("res://assets/Turns/Shop.png"),
                 ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
                 StretchMode = TextureRect.StretchModeEnum.Scale,
                 MouseFilter = Control.MouseFilterEnum.Ignore
@@ -327,7 +330,7 @@ namespace SpellsAndRooms.scripts.Turns
                 SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
                 SizeFlagsVertical = Control.SizeFlags.ExpandFill
             };
-            Texture2D texture = TryLoadTexture(offer.ImagePath);
+            Texture2D texture = offer.ImageTexture;
             if (texture != null)
                 imageTexture.Texture = texture;
             imageFrame.AddChild(imageTexture);
@@ -478,15 +481,20 @@ namespace SpellsAndRooms.scripts.Turns
         }
 
         /// <summary>
-        /// Intenta cargar una textura desde la ruta especificada, verificando primero si la ruta es válida y si el recurso existe. Si la ruta es inválida o el recurso no existe, devuelve null para evitar errores al intentar usar una textura inexistente. Este método se utiliza para cargar las imágenes asociadas a las ofertas en la tienda, asegurando que solo se intenten cargar texturas que realmente existen en el proyecto, lo que mejora la robustez de la tienda y evita problemas visuales causados por rutas incorrectas o recursos faltantes.
+        /// Dado un conjunto de rutas candidatas, devuelve la primera textura que corresponde a un recurso existente.
         /// </summary>
-        /// <param name="path">
-        /// La ruta del recurso de la textura que se desea cargar. Se espera que esta ruta sea relativa al proyecto y que apunte a un recurso válido dentro de la carpeta de assets. Este método verificará si la ruta es nula, vacía o contiene solo espacios en blanco, y también comprobará si el recurso existe antes de intentar cargarlo. Si la ruta no es válida o el recurso no existe, se devolverá null para indicar que no se pudo cargar la textura, lo que permite manejar estos casos de manera segura en el código que utiliza esta función.
-        /// </param>
-        /// <returns>
-        /// La textura cargada desde la ruta especificada, o null si la ruta es inválida o el recurso no existe. Si se devuelve null, el código que llama a este método debe manejar este caso adecuadamente (por ejemplo, mostrando un marcador de posición en lugar de la imagen) para evitar errores visuales o de referencia a recursos inexistentes. Este método proporciona una forma segura de cargar texturas para las ofertas en la tienda, asegurando que solo se utilicen recursos válidos y disponibles en el proyecto.
-        /// </returns>
-        private Texture2D TryLoadTexture(string path)
+        private static Texture2D LoadFirstExistingTexture(params string[] candidates)
+        {
+            foreach (string candidate in candidates)
+            {
+                if (!string.IsNullOrWhiteSpace(candidate) && ResourceLoader.Exists(candidate))
+                    return GD.Load<Texture2D>(candidate);
+            }
+
+            return null;
+        }
+
+        private static Texture2D TryLoadTexture(string path)
         {
             if (string.IsNullOrWhiteSpace(path) || !ResourceLoader.Exists(path))
                 return null;
@@ -495,88 +503,62 @@ namespace SpellsAndRooms.scripts.Turns
         }
         
         /// <summary>
-        /// Dado un conjunto de rutas candidatas, devuelve la primera ruta que corresponde a un recurso existente. Este método se utiliza para resolver las rutas de las imágenes asociadas a las ofertas en la tienda, permitiendo definir múltiples opciones de ruta para cada oferta (por ejemplo, una ruta específica basada en el nombre de la oferta y rutas de respaldo genéricas) y asegurando que se utilice la primera ruta válida que se encuentre. Esto mejora la flexibilidad del sistema de recursos, permitiendo que las ofertas tengan imágenes personalizadas cuando estén disponibles, pero también garantizando que siempre haya una imagen válida para mostrar incluso si no se han definido rutas específicas para ciertas ofertas.
+        /// Resuelve la textura para un consumible dado, utilizando su nombre y subtipo para determinar qué imagen asociar.
         /// </summary>
-        /// <param name="candidates">
-        /// Un conjunto de rutas de recursos candidatas que se desean verificar. Se espera que estas rutas sean relativas al proyecto y que apunten a recursos válidos dentro de la carpeta de assets. Este método iterará sobre las rutas proporcionadas en el orden dado, verificando si cada ruta es válida (no nula, no vacía, no solo espacios) y si el recurso existe en esa ruta. La primera ruta que cumpla con estos criterios será devuelta como resultado. Si ninguna de las rutas es válida o corresponde a un recurso existente, se devolverá una cadena vacía para indicar que no se encontró una ruta válida entre las opciones proporcionadas.
-        /// </param>
-        /// <returns>
-        /// La primera ruta de recurso válida que se encuentra en el conjunto de candidatos, o una cadena vacía si ninguna ruta es válida o corresponde a un recurso existente. Este resultado se utiliza para asignar la imagen de las ofertas en la tienda, asegurando que siempre se utilice una ruta válida para cargar la textura asociada a cada oferta. Si se devuelve una cadena vacía, el código que utiliza esta función debe manejar este caso adecuadamente (por ejemplo, mostrando un marcador de posición en lugar de la imagen) para evitar errores visuales o de referencia a recursos inexistentes.
-        /// </returns>
-        private static string FirstExistingPath(params string[] candidates)
+        private Texture2D ResolveConsumableTexture(ItemDatabase.ConsumableDefinition def)
         {
-            foreach (string candidate in candidates)
-            {
-                if (!string.IsNullOrWhiteSpace(candidate) && ResourceLoader.Exists(candidate))
-                    return candidate;
-            }
+            Texture2D csvTexture = TryLoadTexture(def.ImagePath);
+            if (csvTexture != null)
+                return csvTexture;
 
-            return string.Empty;
-        }
-        
-        /// <summary>
-        /// Resuelve la ruta de la imagen para un consumible dado, utilizando su nombre y subtipo para determinar qué imagen asociar. Si el nombre o subtipo del consumible contiene palabras clave relacionadas con salud o maná, se asignan imágenes específicas para esos casos. Si no se encuentran coincidencias, se intenta cargar una imagen basada en el nombre del consumible, con rutas de respaldo genéricas para asegurarse de que siempre haya una imagen válida. Este método ayuda a mantener una presentación visual coherente y relevante para los consumibles en la tienda, permitiendo que los jugadores identifiquen rápidamente el tipo de consumible por su imagen.
-        /// </summary>
-        /// <param name="def">
-        /// La definición del consumible para el cual se desea resolver la ruta de la imagen. Se espera que este objeto contenga información relevante como el nombre y subtipo del consumible, que se utilizan para determinar qué imagen asociar. Es importante que esta definición esté completamente inicializada y que sus propiedades sean válidas, ya que este método depende de esa información para realizar las comparaciones de palabras clave y construir las rutas de las imágenes. Si el nombre o subtipo del consumible no contienen palabras clave específicas, este método intentará cargar una imagen basada en el nombre del consumible, lo que proporciona flexibilidad para agregar nuevos consumibles sin necesidad de modificar el código de resolución de imágenes.
-        /// </param>
-        /// <returns>
-        /// La ruta de la imagen asociada al consumible dado, determinada por su nombre y subtipo. Si el nombre o subtipo contienen palabras clave relacionadas con salud o maná, se devolverán rutas específicas para esos casos. Si no se encuentran coincidencias, se intentará cargar una imagen basada en el nombre del consumible, con rutas de respaldo genéricas para garantizar que siempre haya una imagen válida. Si ninguna de las rutas es válida o corresponde a un recurso existente, se devolverá una cadena vacía, lo que indica que no se encontró una imagen específica para ese consumible. Este resultado se utiliza para asignar la imagen de la oferta correspondiente al consumible en la tienda.
-        /// </returns>
-        private string ResolveConsumableImagePath(ItemDatabase.ConsumableDefinition def)
-        {
             string name = Normalize(def.Name);
             string subtype = Normalize(def.Subtype);
 
             if (name.Contains("health") || subtype.Contains("healing"))
-                return FirstExistingPath("res://assets/Items/Consumable/Poti.png");
+                return LoadFirstExistingTexture("res://assets/Items/Consumable/Poti.png");
 
             if (name.Contains("mana") || subtype.Contains("mana"))
-                return FirstExistingPath("res://assets/Items/Consumable/PotiManai.png");
+                return LoadFirstExistingTexture("res://assets/Items/Consumable/PotiManai.png");
 
-            return FirstExistingPath(
+            return LoadFirstExistingTexture(
                 $"res://assets/Items/Consumable/{def.Name}.png",
                 "res://assets/Items/Consumable/Poti.png",
                 "res://assets/Items/Consumable/PotiManai.png");
         }
         
         /// <summary>
-        /// Resuelve la ruta de la imagen para un pasivo dado, utilizando su nombre y tipo para determinar qué imagen asociar. Si el nombre o tipo del pasivo contiene palabras clave relacionadas con defensa, ataque o velocidad, se asignan imágenes específicas para esos casos. Si no se encuentran coincidencias, se intenta cargar una imagen basada en el nombre del pasivo, con rutas de respaldo genéricas para asegurarse de que siempre haya una imagen válida. Este método ayuda a mantener una presentación visual coherente y relevante para los pasivos en la tienda, permitiendo que los jugadores identifiquen rápidamente el tipo de pasivo por su imagen.
+        /// Resuelve la textura para un pasivo dado, utilizando su nombre y tipo para determinar qué imagen asociar.
         /// </summary>
-        /// <param name="def">
-        /// La definición del pasivo para el cual se desea resolver la ruta de la imagen. Se espera que este objeto contenga información relevante como el nombre y tipo del pasivo, que se utilizan para determinar qué imagen asociar. Es importante que esta definición esté completamente inicializada y que sus propiedades sean válidas, ya que este método depende de esa información para realizar las comparaciones de palabras clave y construir las rutas de las imágenes. Si el nombre o tipo del pasivo no contienen palabras clave específicas, este método intentará cargar una imagen basada en el nombre del pasivo, lo que proporciona flexibilidad para agregar nuevos pasivos sin necesidad de modificar el código de resolución de imágenes.
-        /// </param>
-        /// <returns>
-        /// La ruta de la imagen asociada al pasivo dado, determinada por su nombre y tipo. Si el nombre o tipo contienen palabras clave relacionadas con defensa, ataque o velocidad, se devolverán rutas específicas para esos casos. Si no se encuentran coincidencias, se intentará cargar una imagen basada en el nombre del pasivo, con rutas de respaldo genéricas para garantizar que siempre haya una imagen válida. Si ninguna de las rutas es válida o corresponde a un recurso existente, se devolverá una cadena vacía, lo que indica que no se encontró una imagen específica para ese pasivo. Este resultado se utiliza para asignar la imagen de la oferta correspondiente al pasivo en la tienda.
-        /// </returns>
-        private string ResolvePassiveImagePath(ItemDatabase.PassiveDefinition def)
+        private Texture2D ResolvePassiveTexture(ItemDatabase.PassiveDefinition def)
         {
-            return FirstExistingPath(
+            Texture2D csvTexture = TryLoadTexture(def.ImagePath);
+            if (csvTexture != null)
+                return csvTexture;
+
+            return LoadFirstExistingTexture(
                 $"res://assets/Items/Passive/{def.Name}.png",
                 "res://assets/Items/Passive/pecheGris.png");
         }
         
         /// <summary>
-        /// Resuelve la ruta de la imagen para una habilidad dada, utilizando su nombre para determinar qué imagen asociar. Si el nombre de la habilidad contiene palabras clave relacionadas con elementos como fuego, agua o tierra, se asignan imágenes específicas para esos casos. Si no se encuentran coincidencias, se intenta cargar una imagen basada en el nombre de la habilidad, con rutas de respaldo genéricas para asegurarse de que siempre haya una imagen válida. Este método ayuda a mantener una presentación visual coherente y relevante para las habilidades en la tienda, permitiendo que los jugadores identifiquen rápidamente el tipo de habilidad por su imagen.
+        /// Resuelve la textura para una habilidad dada, utilizando su nombre para determinar qué imagen asociar.
         /// </summary>
-        /// <param name="def">
-        /// La definición de la habilidad para la cual se desea resolver la ruta de la imagen. Se espera que este objeto contenga información relevante como el nombre de la habilidad, que se utiliza para determinar qué imagen asociar. Es importante que esta definición esté completamente inicializada y que sus propiedades sean válidas, ya que este método depende de esa información para realizar las comparaciones de palabras clave y construir las rutas de las imágenes. Si el nombre de la habilidad no contiene palabras clave específicas, este método intentará cargar una imagen basada en el nombre de la habilidad, lo que proporciona flexibilidad para agregar nuevas habilidades sin necesidad de modificar el código de resolución de imágenes.
-        /// </param>
-        /// <returns>
-        /// La ruta de la imagen asociada a la habilidad dada, determinada por su nombre. Si el nombre contiene palabras clave relacionadas con elementos como fuego, agua o tierra, se devolverán rutas específicas para esos casos. Si no se encuentran coincidencias, se intentará cargar una imagen basada en el nombre de la habilidad, con rutas de respaldo genéricas para garantizar que siempre haya una imagen válida. Si ninguna de las rutas es válida o corresponde a un recurso existente, se devolverá una cadena vacía, lo que indica que no se encontró una imagen específica para esa habilidad. Este resultado se utiliza para asignar la imagen de la oferta correspondiente a la habilidad en la tienda.
-        /// </returns>
-        private string ResolveSkillImagePath(SkillDatabase.SkillDefinition def)
+        private Texture2D ResolveSkillTexture(SkillDatabase.SkillDefinition def)
         {
+            Texture2D csvTexture = TryLoadTexture(def.ImagePath);
+            if (csvTexture != null)
+                return csvTexture;
+
             string name = Normalize(def.Name);
 
             if (name.Contains("pyro"))
-                return FirstExistingPath("res://assets/Characters/Enemy/BlackGoblin.png");
+                return LoadFirstExistingTexture("res://assets/Characters/Enemy/BlackGoblin.png");
             if (name.Contains("aqua"))
-                return FirstExistingPath("res://assets/Characters/Player/MagoAzul.png");
+                return LoadFirstExistingTexture("res://assets/Characters/Player/MagoAzul.png");
             if (name.Contains("earth"))
-                return FirstExistingPath("res://assets/Characters/Enemy/Esqueleto.png");
+                return LoadFirstExistingTexture("res://assets/Characters/Enemy/Esqueleto.png");
 
-            return FirstExistingPath(
+            return LoadFirstExistingTexture(
                 "res://assets/Characters/Enemy/Slime.png",
                 "res://assets/Characters/Player/CaballeroNegro.png");
         }
@@ -665,7 +647,7 @@ namespace SpellsAndRooms.scripts.Turns
                     Title = def.Name,
                     Subtitle = $"Consumible - {def.Subtype}",
                     Description = def.Description,
-                    ImagePath = ResolveConsumableImagePath(def),
+                    ImageTexture = ResolveConsumableTexture(def),
                     Price = def.Price
                 });
             }
@@ -691,7 +673,7 @@ namespace SpellsAndRooms.scripts.Turns
                     Title = def.Name,
                     Subtitle = $"Pasivo - {def.Type}",
                     Description = def.Description,
-                    ImagePath = ResolvePassiveImagePath(def),
+                    ImageTexture = ResolvePassiveTexture(def),
                     Price = def.Price
                 });
             }
@@ -720,7 +702,7 @@ namespace SpellsAndRooms.scripts.Turns
                     Title = def.Name,
                     Subtitle = "Habilidad",
                     Description = def.Description,
-                    ImagePath = ResolveSkillImagePath(def),
+                    ImageTexture = ResolveSkillTexture(def),
                     Price = def.Price
                 });
             }

@@ -1,6 +1,6 @@
-name,type,damage,manacost,multihit,description,value
-Destroyer,Physical,20,20,false,"Un ataque poderoso capaz de destruir a los enemigos.",30
-Pyro,Fire,10,15,false,"Un ataque ígneo que quema a los enemigos con el tiempo.",30
-Aqua,Water,7,10,false,"Un ataque a base de agua que puede apagar las llamas y ralentizar a los enemigos.",30
-Earthquake,Earth,10,25,true,"Un ataque de área que daña a todos los enemigos en las proximidades.",30
-Cure,Healing,30,30,false,"Un hechizo curativo que restaura la salud del lanzador o de un aliado.",30
+name,type,damage,manacost,multihit,description,value,path
+Destroyer,Physical,20,20,false,"Un ataque poderoso capaz de destruir a los enemigos.",30,res://assets/characters/CaballeroNegro.png
+Pyro,Fire,10,15,false,"Un ataque ígneo que quema a los enemigos con el tiempo.",30,res://assets/enemies/BlackGoblin.png
+Aqua,Water,7,10,false,"Un ataque a base de agua que puede apagar las llamas y ralentizar a los enemigos.",30,res://assets/characters/MagoTerceraJamOnly.png
+Earthquake,Earth,10,25,true,"Un ataque de área que daña a todos los enemigos en las proximidades.",30,res://assets/enemies/Esqueleto.png
+Cure,Healing,30,30,false,"Un hechizo curativo que restaura la salud del lanzador o de un aliado.",30,res://assets/characters/MagoTerceraJamOnly2.png
