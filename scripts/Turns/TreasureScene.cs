@@ -216,7 +216,8 @@ namespace SpellsAndRooms.scripts.Turns
                 ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
                 StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
                 SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-                SizeFlagsVertical = Control.SizeFlags.ExpandFill
+                SizeFlagsVertical = Control.SizeFlags.ExpandFill,
+                TextureFilter = CanvasItem.TextureFilterEnum.Nearest
             };
             imageFrame.AddChild(_rewardImage);
 

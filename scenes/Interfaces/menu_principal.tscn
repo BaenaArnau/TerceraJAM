@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://csb3jibyjau2q" path="res://scenes/Interfaces/settings.tscn" id="7_vi25f"]
 
 [node name="MenuPrincipal" type="Control" unique_id=652643914 node_paths=PackedStringArray("_settings")]
+layout_direction = 1
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -21,17 +22,13 @@ _settings = NodePath("Settings")
 [node name="Fondo" type="TextureRect" parent="." unique_id=2055654223]
 z_index = -1
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -777.0
-offset_top = -405.0
-offset_right = 759.0
-offset_bottom = 619.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+expand_mode = 2
+stretch_mode = 1
 texture = ExtResource("1_dnsbu")
 
 [node name="Pergamino" type="TextureRect" parent="." unique_id=1304561978]
