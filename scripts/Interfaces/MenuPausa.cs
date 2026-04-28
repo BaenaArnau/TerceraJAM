@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public partial class MenuPausa : CanvasLayer
 {
@@ -46,6 +47,8 @@ public partial class MenuPausa : CanvasLayer
 	}
 	private void onSettingPressed()
 	{
+
+		GD.Print("Settings pressed");
 		if (_settings != null)
 			_settings.Visible = true;
 	}	

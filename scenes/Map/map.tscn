@@ -61,3 +61,5 @@ color = Color(0.14550626, 0.14142448, 0.14244744, 0.53333336)
 
 [node name="menu_pausa" parent="." unique_id=700777700 instance=ExtResource("8_57bgo")]
 visible = false
+
+[node name="BackRoundMusic" type="AudioStreamPlayer" parent="." unique_id=2081038833]

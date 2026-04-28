@@ -5,11 +5,15 @@
 [ext_resource type="Theme" uid="uid://d23s4g38gifyk" path="res://theme/SettingsTabContainer_Theme.tres" id="2_i6wng"]
 [ext_resource type="Theme" uid="uid://cspr6p2va4ryf" path="res://theme/Button_Theme.tres" id="3_4ts72"]
 [ext_resource type="Texture2D" uid="uid://bj6vxcfruhnta" path="res://assets/icons/FondoTitulo.png" id="5_r22wt"]
+[ext_resource type="Theme" uid="uid://dnytf2231v488" path="res://theme/LabelsTitleTheme.tres" id="6_4ut1o"]
 [ext_resource type="FontFile" uid="uid://5lr8h01ai6yx" path="res://assets/font/upheaval/upheavtt.ttf" id="6_qevgg"]
 
-[node name="Settings" type="CanvasLayer" unique_id=1413165098]
+[node name="Settings" type="CanvasLayer" unique_id=1413165098 node_paths=PackedStringArray("_fullScreenCheckBox", "_sonidoSlider", "_musicaSlider")]
 process_mode = 3
 script = ExtResource("1_kkycx")
+_fullScreenCheckBox = NodePath("MarginContainer/VBoxContainer/OpcionesResoluciones/CheckBox")
+_sonidoSlider = NodePath("MarginContainer/VBoxContainer/HSliderSonido")
+_musicaSlider = NodePath("MarginContainer/VBoxContainer/HSliderMusica")
 
 [node name="Pergamino" type="TextureRect" parent="." unique_id=120368301]
 texture_filter = 1
@@ -76,15 +80,19 @@ offset_right = 350.0
 offset_bottom = 163.5
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 130
-theme_override_constants/margin_top = 220
-theme_override_constants/margin_right = 130
+theme_override_constants/margin_left = 150
+theme_override_constants/margin_top = 240
+theme_override_constants/margin_right = 150
 theme_override_constants/margin_bottom = 100
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=643380598]
+texture_filter = 1
+custom_minimum_size = Vector2(0, 300)
 layout_mode = 2
+theme_override_constants/separation = 10
 
 [node name="TabContainer" type="TabContainer" parent="MarginContainer/VBoxContainer" unique_id=1839170637]
+visible = false
 texture_filter = 1
 layout_mode = 2
 size_flags_vertical = 3
@@ -102,7 +110,13 @@ metadata/_tab_index = 0
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/General" unique_id=222052627]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/General/VBoxContainer" unique_id=2041589748]
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/General/VBoxContainer" unique_id=134609386]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer/General/VBoxContainer/VBoxContainer" unique_id=437154224]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/General/VBoxContainer/VBoxContainer/HBoxContainer" unique_id=2041589748]
 layout_mode = 2
 text = "texto de  prueba"
 
@@ -134,17 +148,75 @@ layout_mode = 2
 layout_mode = 2
 text = "texto de  prueba sonido"
 
-[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer" unique_id=1044271837]
+[node name="Resoluciones" type="Label" parent="MarginContainer/VBoxContainer" unique_id=843681494]
 layout_mode = 2
+theme = ExtResource("6_4ut1o")
+text = "RESOLUCIONES:"
+
+[node name="OpcionesResoluciones" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1774033901]
+layout_mode = 2
+
+[node name="OptionButton" type="OptionButton" parent="MarginContainer/VBoxContainer/OpcionesResoluciones" unique_id=403563784]
+texture_filter = 1
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme = ExtResource("3_4ts72")
+theme_override_font_sizes/font_size = 20
+alignment = 1
+selected = 0
+item_count = 4
+popup/item_0/text = "1152x648"
+popup/item_0/id = 0
+popup/item_1/text = "1920x1080"
+popup/item_1/id = 1
+popup/item_2/text = "2560x1440"
+popup/item_2/id = 2
+popup/item_3/text = "3840x2160"
+popup/item_3/id = 3
+
+[node name="CheckBox" type="CheckBox" parent="MarginContainer/VBoxContainer/OpcionesResoluciones" unique_id=733732789]
+texture_filter = 1
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("3_4ts72")
+theme_override_font_sizes/font_size = 20
+text = "PANTALLA COMPLETA"
+
+[node name="Sonido" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1455369028]
+layout_mode = 2
+theme = ExtResource("6_4ut1o")
+text = "SONIDO:"
+
+[node name="HSliderSonido" type="HSlider" parent="MarginContainer/VBoxContainer" unique_id=1314091931]
+layout_mode = 2
+theme = ExtResource("3_4ts72")
+max_value = 1.0
+step = 0.05
+
+[node name="Musica" type="Label" parent="MarginContainer/VBoxContainer" unique_id=565170276]
+layout_mode = 2
+theme = ExtResource("6_4ut1o")
+text = "Musica:"
+
+[node name="HSliderMusica" type="HSlider" parent="MarginContainer/VBoxContainer" unique_id=374305387]
+layout_mode = 2
+theme = ExtResource("3_4ts72")
+max_value = 1.0
+step = 0.05
+
+[node name="BotonesInferiores" type="MarginContainer" parent="MarginContainer" unique_id=1044271837]
+texture_filter = 1
+layout_mode = 2
+size_flags_vertical = 8
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_right = 10
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/MarginContainer" unique_id=349046472]
+[node name="BotonesInferiores" type="HBoxContainer" parent="MarginContainer/BotonesInferiores" unique_id=349046472]
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_constants/separation = 50
 
-[node name="Volver" type="Button" parent="MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=706203482]
+[node name="Volver" type="Button" parent="MarginContainer/BotonesInferiores/BotonesInferiores" unique_id=706203482]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
@@ -152,11 +224,15 @@ theme = ExtResource("3_4ts72")
 text = "VOLVER
 "
 
-[node name="Aplicar" type="Button" parent="MarginContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=1128239358]
+[node name="Aplicar" type="Button" parent="MarginContainer/BotonesInferiores/BotonesInferiores" unique_id=1128239358]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme = ExtResource("3_4ts72")
 text = "APLICAR"
 
-[connection signal="pressed" from="MarginContainer/VBoxContainer/MarginContainer/HBoxContainer/Volver" to="." method="onVolverPressed"]
+[connection signal="toggled" from="MarginContainer/VBoxContainer/OpcionesResoluciones/CheckBox" to="." method="fullScreenActive"]
+[connection signal="value_changed" from="MarginContainer/VBoxContainer/HSliderSonido" to="." method="onSonidoChanged"]
+[connection signal="value_changed" from="MarginContainer/VBoxContainer/HSliderMusica" to="." method="onMusicaChanged"]
+[connection signal="pressed" from="MarginContainer/BotonesInferiores/BotonesInferiores/Volver" to="." method="onVolverPressed"]
+[connection signal="pressed" from="MarginContainer/BotonesInferiores/BotonesInferiores/Aplicar" to="." method="saveSettings"]

@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://csc036mg64ghl"]
+[gd_scene format=3 uid="uid://dpxsqadksniue"]
 
 [ext_resource type="Texture2D" uid="uid://ddx86cawwofrc" path="res://assets/icons/Pergamino.png" id="1_3wnwp"]
 [ext_resource type="Script" uid="uid://de5bob441bmjn" path="res://scripts/Interfaces/SeleccionPersonajes.cs" id="1_h47sb"]
@@ -91,6 +91,44 @@ theme_override_font_sizes/font_size = 63
 text = "SELECCIONA UN HEROE
 "
 
+[node name="Botones" type="MarginContainer" parent="Pergamino" unique_id=580934459]
+process_priority = 1
+texture_filter = 1
+custom_minimum_size = Vector2(500, 50)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -250.0
+offset_top = -151.0
+offset_right = 250.0
+offset_bottom = -101.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_right = 40
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Pergamino/Botones" unique_id=1693096459]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Volver" type="Button" parent="Pergamino/Botones/HBoxContainer" unique_id=1373207869]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("11_pbnf7")
+text = "VOLVER
+"
+
+[node name="Seleccionar" type="Button" parent="Pergamino/Botones/HBoxContainer" unique_id=427746838]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("11_pbnf7")
+text = "SELECCIONAR
+"
+
 [node name="Personajes" type="MarginContainer" parent="." unique_id=471152393]
 custom_minimum_size = Vector2(300, 300)
 anchors_preset = 8
@@ -135,43 +173,7 @@ texture_disabled = ExtResource("10_yqc31")
 texture_focused = ExtResource("9_pbnf7")
 stretch_mode = 5
 
-[node name="Botones" type="MarginContainer" parent="." unique_id=580934459]
-texture_filter = 1
-custom_minimum_size = Vector2(500, 50)
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -251.0
-offset_top = -135.0
-offset_right = 249.0
-offset_bottom = -106.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_right = 40
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Botones" unique_id=1693096459]
-custom_minimum_size = Vector2(400, 0)
-layout_mode = 2
-size_flags_horizontal = 4
-
-[node name="Volver" type="Button" parent="Botones/HBoxContainer" unique_id=1373207869]
-layout_mode = 2
-size_flags_horizontal = 3
-theme = ExtResource("11_pbnf7")
-text = "VOLVER
-"
-
-[node name="Seleccionar" type="Button" parent="Botones/HBoxContainer" unique_id=427746838]
-layout_mode = 2
-size_flags_horizontal = 3
-theme = ExtResource("11_pbnf7")
-text = "SELECCIONAR
-"
-
+[connection signal="pressed" from="Pergamino/Botones/HBoxContainer/Volver" to="." method="onVolverPressed"]
+[connection signal="pressed" from="Pergamino/Botones/HBoxContainer/Seleccionar" to="." method="onSelecionarPressed"]
 [connection signal="pressed" from="Personajes/Personajes/Caballero" to="." method="onCaballeroSelect"]
 [connection signal="pressed" from="Personajes/Personajes/Mago" to="." method="onMagoSelect"]
-[connection signal="pressed" from="Botones/HBoxContainer/Volver" to="." method="onVolverPressed"]
-[connection signal="pressed" from="Botones/HBoxContainer/Seleccionar" to="." method="onSelecionarPressed"]

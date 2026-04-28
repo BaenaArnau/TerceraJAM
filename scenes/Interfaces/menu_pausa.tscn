@@ -13,6 +13,8 @@ script = ExtResource("1_im7n4")
 _settings = NodePath("Settings")
 
 [node name="Settings" parent="." unique_id=1413165098 instance=ExtResource("5_je6uc")]
+process_priority = 1
+layer = 2
 visible = false
 
 [node name="Pergamino" type="TextureRect" parent="." unique_id=1983698291]

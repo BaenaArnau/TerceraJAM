@@ -1,0 +1,7 @@
+[gd_resource type="Theme" format=3 uid="uid://dnytf2231v488"]
+
+[ext_resource type="FontFile" uid="uid://5lr8h01ai6yx" path="res://assets/font/upheaval/upheavtt.ttf" id="1_l13yk"]
+
+[resource]
+default_font = ExtResource("1_l13yk")
+default_font_size = 32
