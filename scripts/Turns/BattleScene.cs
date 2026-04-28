@@ -69,6 +69,7 @@ namespace SpellsAndRooms.scripts.Turns
         private Button _backButton;
 
         private readonly Dictionary<Enemy, Node2D> _enemyNodes = new Dictionary<Enemy, Node2D>();
+        private Viewport _cachedViewport;
         
         /// <summary>
         /// Inicia la batalla con el jugador y la lista de enemigos proporcionados. Configura la interfaz, posiciona a los combatientes y comienza el turno del jugador.
@@ -124,6 +125,29 @@ namespace SpellsAndRooms.scripts.Turns
                 StartPlayerTurn();
             }
 
+            ApplyResponsiveLayout();
+
+            // Connect to viewport size changes to recalculate character positions when window is resized.
+            _cachedViewport = GetViewport();
+            if (_cachedViewport != null)
+            {
+                _cachedViewport.SizeChanged += OnViewportSizeChanged;
+            }
+        }
+
+        public override void _ExitTree()
+        {
+            // Disconnect from viewport size changes when leaving the scene.
+            if (_cachedViewport != null)
+            {
+                _cachedViewport.SizeChanged -= OnViewportSizeChanged;
+                _cachedViewport = null;
+            }
+        }
+
+        private void OnViewportSizeChanged()
+        {
+            // Recalculate battle layout when viewport is resized.
             ApplyResponsiveLayout();
         }
         
@@ -825,6 +849,20 @@ namespace SpellsAndRooms.scripts.Turns
 
             if (_toggleLogButton != null)
                 _toggleLogButton.CustomMinimumSize = new Vector2(110, 34) * scale;
+
+            // Recalculate character positions when viewport changes
+            if (_player != null)
+            {
+                PositionPlayer();
+            }
+
+            if (_enemies != null && _enemies.Count > 0)
+            {
+                for (int i = 0; i < _enemies.Count; i++)
+                {
+                    PositionEnemy(_enemies[i], i);
+                }
+            }
         }
         
         /// <summary>

@@ -13,7 +13,7 @@ config_version=5
 config/name="Spells&Rooms"
 run/main_scene="uid://bkjfllkri27iq"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="uid://bxk1af1oy5kh3"
 
 [dotnet]
 

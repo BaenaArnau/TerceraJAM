@@ -56,6 +56,7 @@ namespace SpellsAndRooms.scripts.map
         private Room _pendingTreasureRoom;
         private CanvasLayer _goldHudLayer;
         private Label _goldHudLabel;
+        private Viewport _cachedViewport;
 
         public override void _Ready()
         {
@@ -81,6 +82,13 @@ namespace SpellsAndRooms.scripts.map
             _visualsContainer = GetNodeOrNull<Node2D>("Visuals") ?? this;
             _roomsContainer = _visualsContainer.GetNodeOrNull<Node2D>("Rooms") ?? _visualsContainer;
             _linesContainer = _visualsContainer.GetNodeOrNull<Node2D>("Lines") ?? _visualsContainer;
+
+            // Connect to viewport size changes to recalculate scroll view when window is resized.
+            _cachedViewport = GetViewport();
+            if (_cachedViewport != null)
+            {
+                _cachedViewport.SizeChanged += OnViewportSizeChanged;
+            }
 
             if (BattleScenePacked == null)
             {
@@ -120,6 +128,25 @@ namespace SpellsAndRooms.scripts.map
             UpdateGoldHud();
 
             GenerateAndDisplayMap();
+        }
+
+        public override void _ExitTree()
+        {
+            // Disconnect from viewport size changes when leaving the scene.
+            if (_cachedViewport != null)
+            {
+                _cachedViewport.SizeChanged -= OnViewportSizeChanged;
+                _cachedViewport = null;
+            }
+        }
+
+        private void OnViewportSizeChanged()
+        {
+            // Recalculate scroll view layout when the viewport is resized.
+            if (_visualsContainer != null && _roomToMapRoom.Count > 0)
+            {
+                SetupScrollView();
+            }
         }
 
         private void SetupCombatSystems()
